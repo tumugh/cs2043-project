@@ -6,12 +6,12 @@ public class Teacher {
 	
 	private int id;
 	private String initials;
-	private ArrayList<OnCall> oncalls;
+	private ArrayList<Absence> absences;
 	
 	public Teacher(int id, String initials) {
 		this.id = id;
 		this.initials = initials;
-		this.oncalls = new ArrayList<OnCall>();
+		this.absences = new ArrayList<Absence>();
 	}
 
 	public int getId() {
@@ -30,17 +30,25 @@ public class Teacher {
 		this.initials = initials;
 	}
 
-	public ArrayList<OnCall> getOncalls() {
-		return oncalls;
+	public ArrayList<Absence> getAbsences() {
+		return absences;
 	}
 
-	public void setOncalls(ArrayList<OnCall> oncalls) {
-		this.oncalls = oncalls;
+	public void setAbsences(ArrayList<Absence> absences) {
+		this.absences = absences;
+	}
+	
+	public void addAbsence(Absence absence) {
+		this.absences.add(absence);
 	}
 
 	@Override
 	public String toString() {
-		return "ID: " + getId() + " Initials: " +  getInitials();
+		String out = "ID: " + getId() + " Initials: " +  getInitials();
+		for (Absence a : absences) {
+			out = out + "\n\t" + a.getWeek() + " " + a.getDay() + " Period " + a.getPeriod();
+		}
+		return out;
 	}
 	
 }
