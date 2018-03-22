@@ -6,6 +6,7 @@ public class Absence {
 	private String day;
 	private String week;
 	Teacher teacher;
+	Teacher coverage;
 	
 	public Absence(Teacher teacher, String period, String day, String week) {
 		super();
@@ -13,6 +14,7 @@ public class Absence {
 		this.period = period;
 		this.day = day;
 		this.week = week;
+		this.coverage = null;
 	}
 
 	public String getPeriod() {
