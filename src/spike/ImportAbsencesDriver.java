@@ -25,7 +25,7 @@ public class ImportAbsencesDriver {
 				String initials = WorkbookUtils.getStringValue(sheet, row, WorkbookUtils.TEACHER_INITIALS_COL);
 				
 				while (initials != null && initials != "") {
-					Teacher teacher  = new Teacher(id, initials);
+					Teacher teacher  = new FullTeacher(id, initials);
 					
 					for (int col = WorkbookUtils.START_COL; col <= WorkbookUtils.END_COL; col++) {
 						// If VP indicates teacher is absent on workbook
@@ -40,7 +40,6 @@ public class ImportAbsencesDriver {
 					id = WorkbookUtils.getIntValue(sheet, row, WorkbookUtils.TEACHER_ID_COL);
 	    			initials = WorkbookUtils.getStringValue(sheet, row, WorkbookUtils.TEACHER_INITIALS_COL);
 				}
-			
 		    }
 		    
 		    System.out.println(record.toString());

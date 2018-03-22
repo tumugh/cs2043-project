@@ -1,6 +1,6 @@
-package spike;
+package src.spike;
 
-public class Teacher {
+public abstract class Teacher {
 	
 	private int id;
 	private String initials;
