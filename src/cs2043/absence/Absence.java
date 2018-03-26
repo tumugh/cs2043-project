@@ -1,4 +1,6 @@
-package spike;
+package cs2043.absence;
+
+import cs2043.teacher.Teacher;
 
 public class Absence {
 	

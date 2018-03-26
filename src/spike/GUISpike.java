@@ -1,24 +1,30 @@
 package spike;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.File;
 
-import java.awt.EventQueue;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.JTable;
 import javax.swing.JTextPane;
-import javax.swing.SwingConstants;
-import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
 
-public class GUISpike extends JFrame {
+public class GUISpike extends JFrame implements ActionListener{
 
 	private JPanel contentPane;
 	private JTable table;
+	private JButton btnOpenFile, btnPrint, btnAssignCoverage;
+	final JFileChooser fc = new JFileChooser();
 
 	/**
 	 * Launch the application.
@@ -48,42 +54,43 @@ public class GUISpike extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
-		JPanel panel = new JPanel();
-		panel.setBounds(12, 0, 500, 250);
-		contentPane.add(panel);
-		panel.setLayout(null);
+		JPanel panelTeacherList = new JPanel();
+		panelTeacherList.setBounds(12, 0, 500, 250);
+		contentPane.add(panelTeacherList);
+		panelTeacherList.setLayout(null);
 		
-		JLabel lblNewLabel_1 = new JLabel("Period");
-		lblNewLabel_1.setBounds(0, 63, 70, 15);
-		lblNewLabel_1.setVerticalAlignment(SwingConstants.BOTTOM);
-		lblNewLabel_1.setHorizontalAlignment(SwingConstants.CENTER);
-		panel.add(lblNewLabel_1);
+		JLabel lblPeriod = new JLabel("Period");
+		lblPeriod.setBounds(0, 63, 70, 15);
+		lblPeriod.setVerticalAlignment(SwingConstants.BOTTOM);
+		lblPeriod.setHorizontalAlignment(SwingConstants.CENTER);
+		panelTeacherList.add(lblPeriod);
 		
-		JLabel lblNewLabel_2 = new JLabel("Class");
-		lblNewLabel_2.setBounds(105, 63, 70, 15);
-		panel.add(lblNewLabel_2);
+		JLabel lblClass = new JLabel("Class");
+		lblClass.setBounds(105, 63, 70, 15);
+		panelTeacherList.add(lblClass);
 		
-		JLabel lblNewLabel_3 = new JLabel("Room");
-		lblNewLabel_3.setBounds(209, 63, 70, 15);
-		panel.add(lblNewLabel_3);
+		JLabel lblRoom = new JLabel("Room");
+		lblRoom.setBounds(209, 63, 70, 15);
+		panelTeacherList.add(lblRoom);
 		
-		JLabel lblNewLabel_4 = new JLabel("Absentee");
-		lblNewLabel_4.setBounds(306, 63, 70, 15);
-		panel.add(lblNewLabel_4);
+		JLabel lblAbsentee = new JLabel("Absentee");
+		lblAbsentee.setBounds(306, 63, 70, 15);
+		panelTeacherList.add(lblAbsentee);
 		
-		JLabel lblNewLabel = new JLabel("List of assigned teachers");
-		lblNewLabel.setBounds(41, 12, 400, 33);
-		panel.add(lblNewLabel);
-		lblNewLabel.setVerticalAlignment(SwingConstants.BOTTOM);
-		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		JLabel lblAssignmentList = new JLabel("List of assigned teachers");
+		lblAssignmentList.setBounds(41, 12, 400, 33);
+		panelTeacherList.add(lblAssignmentList);
+		lblAssignmentList.setVerticalAlignment(SwingConstants.BOTTOM);
+		lblAssignmentList.setHorizontalAlignment(SwingConstants.CENTER);
 		
 		JLabel lblSubstitute = new JLabel("Substitute");
 		lblSubstitute.setBounds(403, 63, 97, 15);
-		panel.add(lblSubstitute);
+		panelTeacherList.add(lblSubstitute);
 		
+		// It is very likely that this table will be axed, and something else put in its place.
 		table = new JTable(new DefaultTableModel(new Object[]{"Column1", "Column2", "Column3", "Column4", "Column5"}, 20));
 		table.setBounds(0, 77, 500, 200);
-		panel.add(table);
+		panelTeacherList.add(table);
 		
 		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 		Date date = new Date();
@@ -92,47 +99,76 @@ public class GUISpike extends JFrame {
 		txtpnDate.setBounds(524, 47, 143, 21);
 		contentPane.add(txtpnDate);
 		
-		JButton btnNewButton = new JButton("Initialize");
-		btnNewButton.setBounds(524, 104, 117, 25);
-		contentPane.add(btnNewButton);
+		btnOpenFile = new JButton("Open File");
+		btnOpenFile.addActionListener(this);
+		btnOpenFile.setBounds(524, 104, 152, 25);
+		contentPane.add(btnOpenFile);
 		
-		JButton btnNewButton_1 = new JButton("Print");
-		btnNewButton_1.setBounds(524, 175, 117, 25);
-		contentPane.add(btnNewButton_1);
+		btnPrint = new JButton("Print");
+		btnPrint.addActionListener(this);
+		btnPrint.setBounds(524, 179, 152, 25);
+		contentPane.add(btnPrint);
 		
-		JPanel panel_1 = new JPanel();
-		panel_1.setBounds(12, 262, 500, 286);
-		contentPane.add(panel_1);
-		panel_1.setLayout(null);
+		JPanel panelCoverage = new JPanel();
+		panelCoverage.setBounds(12, 262, 500, 286);
+		contentPane.add(panelCoverage);
+		panelCoverage.setLayout(null);
 		
-		JLabel lblCoverageCountTo = new JLabel("Coverage Count to Date");
-		lblCoverageCountTo.setBounds(0, 12, 500, 15);
-		lblCoverageCountTo.setVerticalAlignment(SwingConstants.BOTTOM);
-		lblCoverageCountTo.setHorizontalAlignment(SwingConstants.CENTER);
-		panel_1.add(lblCoverageCountTo);
+		JLabel lblCoverageCount = new JLabel("Coverage Count to Date");
+		lblCoverageCount.setBounds(0, 12, 500, 15);
+		lblCoverageCount.setVerticalAlignment(SwingConstants.BOTTOM);
+		lblCoverageCount.setHorizontalAlignment(SwingConstants.CENTER);
+		panelCoverage.add(lblCoverageCount);
 		
-		JLabel lblNewLabel_5 = new JLabel("Name");
-		lblNewLabel_5.setBounds(10, 39, 70, 15);
-		panel_1.add(lblNewLabel_5);
+		JLabel lblName = new JLabel("Name");
+		lblName.setBounds(10, 39, 70, 15);
+		panelCoverage.add(lblName);
 		
-		JLabel lblNewLabel_6 = new JLabel("Spare Period");
-		lblNewLabel_6.setBounds(80, 39, 98, 15);
-		panel_1.add(lblNewLabel_6);
+		JLabel lblSpare = new JLabel("Spare Period");
+		lblSpare.setBounds(80, 39, 98, 15);
+		panelCoverage.add(lblSpare);
 		
-		JLabel lblNewLabel_7 = new JLabel("This Week");
-		lblNewLabel_7.setBounds(190, 39, 82, 15);
-		panel_1.add(lblNewLabel_7);
+		JLabel lblWeek = new JLabel("This Week");
+		lblWeek.setBounds(190, 39, 82, 15);
+		panelCoverage.add(lblWeek);
 		
-		JLabel lblNewLabel_8 = new JLabel("This Month");
-		lblNewLabel_8.setBounds(295, 39, 90, 15);
-		panel_1.add(lblNewLabel_8);
+		JLabel lblMonth = new JLabel("This Month");
+		lblMonth.setBounds(295, 39, 90, 15);
+		panelCoverage.add(lblMonth);
 		
-		JLabel lblNewLabel_9 = new JLabel("Total/Term");
-		lblNewLabel_9.setBounds(397, 39, 91, 15);
-		panel_1.add(lblNewLabel_9);
+		JLabel lblTermTotal = new JLabel("Total/Term");
+		lblTermTotal.setBounds(397, 39, 91, 15);
+		panelCoverage.add(lblTermTotal);
 		
-		JLabel label = new JLabel("_________________________________________________________________________________");
-		label.setBounds(-2, 39, 502, 15);
-		panel_1.add(label);
+		JLabel lblDivider = new JLabel("_________________________________________________________________________________");
+		lblDivider.setBounds(-2, 39, 502, 15);
+		panelCoverage.add(lblDivider);
+		
+		btnAssignCoverage = new JButton("Assign Coverage");
+		btnAssignCoverage.addActionListener(this);
+		btnAssignCoverage.setBounds(524, 142, 152, 25);
+		contentPane.add(btnAssignCoverage);
+	}
+	
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == btnOpenFile) {
+			int returnVal = fc.showOpenDialog(GUISpike.this);
+
+	        if (returnVal == JFileChooser.APPROVE_OPTION) {
+	            File file = fc.getSelectedFile();
+	            System.out.println(file.getAbsolutePath());
+	            // Temporarily just prints to console; will collaborate to integrate with WorkbookUtils, possibly.
+	        }
+		}
+		
+		else if (e.getSource() == btnAssignCoverage) {
+			System.out.println("Assign Button Test");
+			// will call stuff to assign substitutes
+		}
+		
+		else if (e.getSource() == btnPrint) {
+			System.out.println("Print Button Test");
+			// will send output of assigned substitutes to printer
+		}
 	}
 }

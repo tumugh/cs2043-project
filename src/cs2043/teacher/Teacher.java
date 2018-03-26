@@ -1,4 +1,4 @@
-package spike;
+package cs2043.teacher;
 
 public class Teacher {
 	

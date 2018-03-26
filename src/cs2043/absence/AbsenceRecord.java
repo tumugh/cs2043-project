@@ -1,4 +1,4 @@
-package spike;
+package cs2043.absence;
 
 import java.util.ArrayList;
 
