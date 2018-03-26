@@ -34,10 +34,12 @@ public class ImportAbsencesDriver {
 					for (int col = WorkbookUtils.START_COL; col <= WorkbookUtils.END_COL; col++) {
 						// If VP indicates teacher is absent on workbook
 						if (WorkbookUtils.getCellValueAsString(sheet, row, col).equalsIgnoreCase(WorkbookUtils.ABSENCE_INDICATOR)) {
-//							Teacher t = TeacherList.getTeacherFromID(id);
+							// Now we can do something like this so we aren't making duplicate teachers
+							// TODO Teacher t = TeacherList.getTeacherFromID(id);
 			    			Absence absence = new Absence(teacher, WorkbookUtils.getPeriod(sheet,col), WorkbookUtils.getDay(sheet, col), sheet.getSheetName());
 			    			record.addAbsences(absence);
 						}
+						// TODO Look for supplies already assigned to cover an absence
 					}
 					
 					row++;
@@ -48,7 +50,6 @@ public class ImportAbsencesDriver {
 		    }
 		    
 		    System.out.println(record.toString());
-    
     		wb.close();
 		} catch (Exception e) {
 			System.out.println(e.getMessage());

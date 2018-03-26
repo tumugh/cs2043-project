@@ -56,5 +56,4 @@ public class Absence {
 		 		   + "\n\t" + getWeek() + " " + getDay() + " Period " + getPeriod();
 		return out;
 	}
-	
 }

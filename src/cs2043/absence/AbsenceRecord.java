@@ -14,8 +14,11 @@ public class AbsenceRecord {
 		absences.add(a);
 	}
 	
+//	private void getAbsencesByDate() {
+//	
+//}
+	
 //	private void getAbsencesByTeacher() {
-//		ArrayList<ArrayList<Absence>> teacherAbsenceRecord = new ArrayList<>
 //		
 //	}
 	
