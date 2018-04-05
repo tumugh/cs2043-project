@@ -18,6 +18,15 @@ public class Absence {
 		this.week = week;
 		this.coverage = null;
 	}
+	
+	public Absence(Teacher teacher, Teacher coverage, String period, String day, String week) {
+		super();
+		this.teacher = teacher;
+		this.coverage = coverage;
+		this.period = period;
+		this.day = day;
+		this.week = week;
+	}
 
 	public String getPeriod() {
 		return period;

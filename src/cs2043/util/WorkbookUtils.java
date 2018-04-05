@@ -12,6 +12,10 @@ public class WorkbookUtils {
 	public static final int TEACHER_INITIALS_COL = 1;
 	public static final int WEEKS_PER_TERM = 20;
 	public static final String ABSENCE_INDICATOR = "X";
+	public static final int SCHEDULE_PERIOD1_COL = 2;
+	public static final int SCHEDULE_PERIOD4_COL = 6;
+
+	
 	public static final String SPIKE_WORKBOOK_PATH = "workbook/spike.xlsx";
 	public static final String WORKBOOK_PATH = "workbook/workbook.xlsx";
 	
