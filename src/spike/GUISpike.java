@@ -10,6 +10,7 @@ import javax.swing.table.DefaultTableModel;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 import javax.swing.JLabel;
@@ -18,12 +19,13 @@ import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JScrollPane;
 
 public class GUISpike extends JFrame implements ActionListener{
 
 	private JPanel contentPane;
-	private JTable table;
 	private JButton btnOpenFile, btnPrint, btnAssignCoverage;
+	private static DefaultTableModel dtm;
 	final JFileChooser fc = new JFileChooser();
 
 	/**
@@ -53,44 +55,6 @@ public class GUISpike extends JFrame implements ActionListener{
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		
-		JPanel panelTeacherList = new JPanel();
-		panelTeacherList.setBounds(12, 0, 500, 250);
-		contentPane.add(panelTeacherList);
-		panelTeacherList.setLayout(null);
-		
-		JLabel lblPeriod = new JLabel("Period");
-		lblPeriod.setBounds(0, 63, 70, 15);
-		lblPeriod.setVerticalAlignment(SwingConstants.BOTTOM);
-		lblPeriod.setHorizontalAlignment(SwingConstants.CENTER);
-		panelTeacherList.add(lblPeriod);
-		
-		JLabel lblClass = new JLabel("Class");
-		lblClass.setBounds(105, 63, 70, 15);
-		panelTeacherList.add(lblClass);
-		
-		JLabel lblRoom = new JLabel("Room");
-		lblRoom.setBounds(209, 63, 70, 15);
-		panelTeacherList.add(lblRoom);
-		
-		JLabel lblAbsentee = new JLabel("Absentee");
-		lblAbsentee.setBounds(306, 63, 70, 15);
-		panelTeacherList.add(lblAbsentee);
-		
-		JLabel lblAssignmentList = new JLabel("List of assigned teachers");
-		lblAssignmentList.setBounds(41, 12, 400, 33);
-		panelTeacherList.add(lblAssignmentList);
-		lblAssignmentList.setVerticalAlignment(SwingConstants.BOTTOM);
-		lblAssignmentList.setHorizontalAlignment(SwingConstants.CENTER);
-		
-		JLabel lblSubstitute = new JLabel("Substitute");
-		lblSubstitute.setBounds(403, 63, 97, 15);
-		panelTeacherList.add(lblSubstitute);
-		
-		// It is very likely that this table will be axed, and something else put in its place.
-		table = new JTable(new DefaultTableModel(new Object[]{"Column1", "Column2", "Column3", "Column4", "Column5"}, 20));
-		table.setBounds(0, 77, 500, 200);
-		panelTeacherList.add(table);
 		
 		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 		Date date = new Date();
@@ -140,6 +104,7 @@ public class GUISpike extends JFrame implements ActionListener{
 		lblTermTotal.setBounds(397, 39, 91, 15);
 		panelCoverage.add(lblTermTotal);
 		
+		//Likely to delete this weird label line
 		JLabel lblDivider = new JLabel("_________________________________________________________________________________");
 		lblDivider.setBounds(-2, 39, 502, 15);
 		panelCoverage.add(lblDivider);
@@ -148,6 +113,17 @@ public class GUISpike extends JFrame implements ActionListener{
 		btnAssignCoverage.addActionListener(this);
 		btnAssignCoverage.setBounds(524, 142, 152, 25);
 		contentPane.add(btnAssignCoverage);
+		
+		String[] columnNames = {"Period", "Class", "Room", "Absentee", "Coverage"};
+		dtm = new DefaultTableModel(0, 0);
+		dtm.setColumnIdentifiers(columnNames);
+		JTable table = new JTable();
+		table.setModel(dtm);
+		
+		JScrollPane scrollPane = new JScrollPane(table);
+		scrollPane.setBounds(12, 12, 500, 238);
+		table.setFillsViewportHeight(true);
+		contentPane.add(scrollPane);
 	}
 	
 	public void actionPerformed(ActionEvent e) {
@@ -163,12 +139,17 @@ public class GUISpike extends JFrame implements ActionListener{
 		
 		else if (e.getSource() == btnAssignCoverage) {
 			System.out.println("Assign Button Test");
-			// will call stuff to assign substitutes
+			// TODO: create static methods to take info from an absence, and fill the JTable with it.
 		}
 		
 		else if (e.getSource() == btnPrint) {
 			System.out.println("Print Button Test");
 			// will send output of assigned substitutes to printer
 		}
+	}
+	
+	public static void newRow(DefaultTableModel model) {
+		String[] data = new String[5];
+		model.addRow(data);
 	}
 }
