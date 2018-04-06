@@ -73,6 +73,22 @@ public class Absence {
 		this.coverage = coverage;
 	}
 	
+	public int periodStrToInt() {
+		if (period.equals("1")) {
+			return 0;
+		} else if (period.equals("2")) {
+			return 1;
+		} else if (period.equals("3A")) {
+			return 2;
+		} else if (period.equals("3B")) {
+			return 3;
+		} else if (period.equals("4")) {
+			return 4;
+		} else {
+			// TODO
+			return -1;
+		}
+	}
 	
 	public String toString() {
 		String out = "ID: " + teacher.getId() + " Initials: " +  teacher.getInitials()

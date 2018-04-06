@@ -2,6 +2,8 @@ package cs2043.absence;
 
 import java.util.ArrayList;
 
+import cs2043.teacher.Teacher;
+
 public class AbsenceRecord {
 
 	ArrayList<Absence> absences;
@@ -25,6 +27,17 @@ public class AbsenceRecord {
 		return weekAbsences;
 	}
 	
+	public ArrayList<Absence> getCoveredAbsencesByWeek(int weekNum) {
+		ArrayList<Absence> covered = new ArrayList<Absence>();
+		for (Absence a : absences) {
+			if (a.getWeekNum() == weekNum && a.getCoverage() != null) {
+				covered.add(a);
+			}
+		}
+		
+		return covered;
+	}
+	
 	public ArrayList<Absence> getUncoveredAbsencesByWeek(int weekNum) {
 		ArrayList<Absence> uncovered = new ArrayList<Absence>();
 		for (Absence a : absences) {
@@ -34,6 +47,17 @@ public class AbsenceRecord {
 		}
 		
 		return uncovered;
+	}
+	
+	public ArrayList<Absence> getCoveredAbsencesByDate(int week, int period, String day) {
+		ArrayList<Absence> covered = new ArrayList<Absence>();
+		for (Absence a : absences) {
+			if (a.getWeekNum() == week && a.periodStrToInt() == period && a.getDay().equals(day) && a.getCoverage() != null) {
+				covered.add(a);
+			}
+		}
+		
+		return covered;
 	}
 	
 //	private void getAbsencesByDate() {
@@ -50,5 +74,15 @@ public class AbsenceRecord {
 			out += a.toString() + '\n';
 		}
 		return out;
+	}
+
+	public boolean isTeacherCovering(Teacher t, int weekNum, int period, String day) {
+		for (Absence covered : getCoveredAbsencesByDate(weekNum, period, day)) {
+			if (covered.getCoverage().getId() == t.getId()) {
+				return true;
+			}
+		}
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

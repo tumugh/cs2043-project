@@ -1,8 +1,6 @@
 package cs2043.util;
 
-import org.apache.commons.codec.binary.StringUtils;
 import org.apache.poi.ss.usermodel.DataFormatter;
-import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 
@@ -17,8 +15,9 @@ public class WorkbookUtils {
 	public static final String ABSENCE_INDICATOR = "X";
 	public static final int SCHEDULE_PERIOD1_COL = 2;
 	public static final int SCHEDULE_PERIOD4_COL = 6;
+	public static final int FULL_TEACHER_SHEET= 20;
+	public static final int SUPPLY_TEACHER_SHEET= 21;
 
-	
 	public static final String SPIKE_WORKBOOK_PATH = "workbook/spike.xlsx";
 	public static final String WORKBOOK_PATH = "workbook/workbook.xlsx";
 	
@@ -41,6 +40,10 @@ public class WorkbookUtils {
 	
 	public static String getPeriod(XSSFSheet sheet, int col) {
 		return getCellValueAsString(sheet, 3, col);
+	}
+	
+	public static boolean isNotBlank(String str) {
+		return str != null && str != "";
 	}
 	
 	public static boolean isEmptyRow(XSSFSheet sheet, int rn) {

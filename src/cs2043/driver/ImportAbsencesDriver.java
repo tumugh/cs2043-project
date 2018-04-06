@@ -19,13 +19,11 @@ public class ImportAbsencesDriver {
 		
 			FileInputStream fis = new FileInputStream(new File(WorkbookUtils.WORKBOOK_PATH));
 			XSSFWorkbook wb = new XSSFWorkbook(fis);
-			AbsenceRecord record = new AbsenceRecord();
-			TeacherRoster roster = new TeacherRoster();
 			
 			ArrayList<Teacher> fullTeachers = getFullTeachers(wb);
 			ArrayList<Teacher> supplyTeachers= getSupplyTeachers(wb);
-			roster.setFullTeacher(fullTeachers);
-			roster.setSupplyTeacher(supplyTeachers);
+			TeacherRoster roster = new TeacherRoster(fullTeachers, supplyTeachers);
+			AbsenceRecord record = new AbsenceRecord();
 //			
 //			for (Teacher t : fullTeachers) {
 //				System.out.println(t.toString());
@@ -33,33 +31,17 @@ public class ImportAbsencesDriver {
 //				System.out.println(t.printSchedule());
 //			}
 		    
-		    for(int j = 0; j < WorkbookUtils.WEEKS_PER_TERM; j++) {
-
-			    XSSFSheet sheet = wb.getSheetAt(j);
-				    
+		    for(int week = 0; week < WorkbookUtils.WEEKS_PER_TERM; week++) {
+			    XSSFSheet sheet = wb.getSheetAt(week);
 				int row = WorkbookUtils.TEACHER_ROW_START;
-
 				Integer id = WorkbookUtils.getIntValue(sheet, row, WorkbookUtils.TEACHER_ID_COL);
 				String initials = WorkbookUtils.getStringValue(sheet, row, WorkbookUtils.TEACHER_INITIALS_COL);
 				
 				// TODO remove Ids from excel spreadsheet for weeks
-				while (initials != null && initials != "") {
+				while (WorkbookUtils.isNotBlank(initials)) {
 					// TODO determine what to do when we can't find a teacher by ID - want to tell user I believe
 					Teacher teacher = roster.getFullTeacherById(id);
-					
-					for (int col = WorkbookUtils.START_COL; col <= WorkbookUtils.END_COL; col++) {
-						// If VP indicates teacher is absent on workbook
-						if (WorkbookUtils.getCellValueAsString(sheet, row, col).equalsIgnoreCase(WorkbookUtils.ABSENCE_INDICATOR)) {
-			    			Absence absence = new Absence(teacher, WorkbookUtils.getPeriod(sheet,col), WorkbookUtils.getDay(sheet, col), sheet.getSheetName());
-			    			record.addAbsences(absence);
-						} else if (WorkbookUtils.getCellValueAsString(sheet, row, col) != "" && WorkbookUtils.getCellValueAsString(sheet, row, col).substring(0, 1).equals("S")) {
-							int supplyId = Integer.parseInt(WorkbookUtils.getCellValueAsString(sheet, row, col).substring(1));
-							Teacher cover = roster.getSupplyTeacherById(supplyId);
-			    			Absence absence = new Absence(teacher, cover, WorkbookUtils.getPeriod(sheet,col), WorkbookUtils.getDay(sheet, col), sheet.getSheetName());
-			    			record.addAbsences(absence);
-						}
-					}
-					
+					getTeacherAbsences(record, roster, sheet, row, teacher);
 					row++;
 					id = WorkbookUtils.getIntValue(sheet, row, WorkbookUtils.TEACHER_ID_COL);
 	    			initials = WorkbookUtils.getStringValue(sheet, row, WorkbookUtils.TEACHER_INITIALS_COL);
@@ -68,14 +50,38 @@ public class ImportAbsencesDriver {
 		    }
 		    
 //		    System.out.println(record.toString());
-		    testCoverages(record, roster);
-    		wb.close();
+//		    testCoverages(record, roster);
+		    for (Absence a : record.getAbsencesByWeek(2)) {
+		    	System.out.println(a);
+		    }
+		    assignment(record, roster, 2);
+	    	System.out.println("assignment done");
+	    	for (Absence a : record.getAbsencesByWeek(2)) {
+		    	System.out.println(a);
+		    }
+	    	checkTalliesByWeek(record, roster, 2);
+		    wb.close();
+	}
+
+	private static void getTeacherAbsences(AbsenceRecord record, TeacherRoster roster, XSSFSheet sheet, int row, Teacher teacher) {
+		for (int col = WorkbookUtils.START_COL; col <= WorkbookUtils.END_COL; col++) {
+			// If VP indicates teacher is absent on workbook
+			if (WorkbookUtils.getCellValueAsString(sheet, row, col).equalsIgnoreCase(WorkbookUtils.ABSENCE_INDICATOR)) {
+				Absence absence = new Absence(teacher, WorkbookUtils.getPeriod(sheet,col), WorkbookUtils.getDay(sheet, col), sheet.getSheetName());
+				record.addAbsences(absence);
+			} else if (WorkbookUtils.getCellValueAsString(sheet, row, col) != "" && WorkbookUtils.getCellValueAsString(sheet, row, col).substring(0, 1).equals("S")) {
+				int supplyId = Integer.parseInt(WorkbookUtils.getCellValueAsString(sheet, row, col).substring(1));
+				Teacher cover = roster.getSupplyTeacherById(supplyId);
+				Absence absence = new Absence(teacher, cover, WorkbookUtils.getPeriod(sheet,col), WorkbookUtils.getDay(sheet, col), sheet.getSheetName());
+				record.addAbsences(absence);
+			}
+		}
 	}
 	
-	// TODO move all this & abstract constants
+	// TODO REALLY need to move everything below
 	public static ArrayList<Teacher> getSupplyTeachers(XSSFWorkbook wb) {
 		ArrayList<Teacher> supply = new ArrayList<Teacher>();
-	    XSSFSheet sheet = wb.getSheetAt(21);
+	    XSSFSheet sheet = wb.getSheetAt(WorkbookUtils.SUPPLY_TEACHER_SHEET);
 
 	    int row = 1;
 	    Integer id = Integer.parseInt(WorkbookUtils.getCellValueAsString(sheet, row, WorkbookUtils.TEACHER_ID_COL).substring(1));
@@ -97,7 +103,7 @@ public class ImportAbsencesDriver {
 	
 	public static ArrayList<Teacher> getFullTeachers(XSSFWorkbook wb) {
 		ArrayList<Teacher> full = new ArrayList<Teacher>();
-	    XSSFSheet sheet = wb.getSheetAt(20);
+	    XSSFSheet sheet = wb.getSheetAt(WorkbookUtils.FULL_TEACHER_SHEET);
 
 	    int row = 1;
 	    Integer id = Integer.parseInt(WorkbookUtils.getCellValueAsString(sheet, row, WorkbookUtils.TEACHER_ID_COL));
@@ -139,6 +145,34 @@ public class ImportAbsencesDriver {
 		}
 	}
 	
+	public static void assignment(AbsenceRecord record, TeacherRoster roster, int week) {
+		for (Absence uncovered : record.getUncoveredAbsencesByWeek(week)) {
+			int weekNum = uncovered.getWeekNum();
+			int period = uncovered.periodStrToInt();
+			String day = uncovered.getDay();
+			for (Teacher t : roster.getFullTeacherWithFreePeriod(period)) {
+				// if teacher isn't already covering absence
+				if (!record.isTeacherCovering(t, weekNum, period, day)) {
+					uncovered.setCoverage(t);
+					break;
+				}
+			}
+		}
+	}
+	
+	public static void checkTalliesByWeek(AbsenceRecord record, TeacherRoster roster, int week) {
+		for (Teacher t : roster.getFullTeachers()) {
+			int count = 0;
+			for (Absence covered : record.getCoveredAbsencesByWeek(week)) {
+				// TODO count will be messed up since ID could be of supply
+				if (covered.getCoverage().getId() == t.getId()) {
+					count++;
+				}
+			}
+			System.out.println(t.toString() + " Covered " + count + " absences");
+		}
+	}
+	
 	// TODO assignment alg
 	// get all uncovered absences
 	// for each absence get week, get day, get period
@@ -147,5 +181,4 @@ public class ImportAbsencesDriver {
 	// MAKE SURE THEY AREN'T ALREADY COVERING SOMETHING THAT DAY
 		// go through all absences of that week, day, period - make sure they aren't already as a coverage - inefficient
 	// make them the coverage
-	
 }

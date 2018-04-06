@@ -12,14 +12,34 @@ public class TeacherRoster {
 		supplyTeachers = new ArrayList<Teacher>();
 	}
 	
-//	public void addFullTeacher(Teacher t) {
-//		fullTeachers.add(t);
-//	}
-//	
-//	public void addSupplyTeacher(Teacher t) {
-//		supplyTeachers.add(t);
-//	}
+	public TeacherRoster(ArrayList<Teacher> fullTeachers, ArrayList<Teacher> supplyTeachers) {
+		this.fullTeachers = fullTeachers;
+		this.supplyTeachers = supplyTeachers;
+	}
 	
+	public void addFullTeacher(Teacher t) {
+		fullTeachers.add(t);
+	}
+	
+	public void addSupplyTeacher(Teacher t) {
+		supplyTeachers.add(t);
+	}
+	
+	public ArrayList<Teacher> getFullTeachers() {
+		return fullTeachers;
+	}
+
+	public ArrayList<Teacher> getSupplyTeachers() {
+		return supplyTeachers;
+	}
+
+	public void setFullTeacher(ArrayList<Teacher> fullTeachers) {
+		this.fullTeachers = fullTeachers;
+	}
+	
+	public void setSupplyTeacher(ArrayList<Teacher> supplyTeachers) {
+		this.supplyTeachers = supplyTeachers;
+	}
 	
 	public Teacher getFullTeacherById(int id) {
 		for (Teacher t : fullTeachers) {
@@ -41,16 +61,13 @@ public class TeacherRoster {
 		return null;
 	}
 	
-	public void setFullTeacher(ArrayList<Teacher> fullTeachers) {
-		this.fullTeachers = fullTeachers;
+	public ArrayList<Teacher> getFullTeacherWithFreePeriod(int period) {
+		ArrayList<Teacher> teachers = new ArrayList<Teacher>();
+		for (Teacher t : fullTeachers) {
+			if (t.getFreePeriod() == period) {
+				teachers.add(t);
+			}
+		}
+		return teachers;
 	}
-	
-	public void setSupplyTeacher(ArrayList<Teacher> supplyTeachers) {
-		this.supplyTeachers = supplyTeachers;
-	}
-	
-	
-//	public Teacher getTeacherById(int id) {
-//		
-//	}
 }
