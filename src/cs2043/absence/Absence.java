@@ -1,8 +1,9 @@
 package cs2043.absence;
 
 import cs2043.teacher.Teacher;
+import spike.Stringable;
 
-public class Absence {
+public class Absence implements Stringable {
 	
 	private String period;
 	private String day;
@@ -89,7 +90,7 @@ public class Absence {
 			return -1;
 		}
 	}
-	
+		
 	public String toString() {
 		String out = "ID: " + teacher.getId() + " Initials: " +  teacher.getInitials()
 		 		   + "\n\t" + getWeekNum() + " " + getDay() + " Period " + getPeriod();
@@ -99,5 +100,11 @@ public class Absence {
 			out = out + "\n\tNot covered!";
 		}
 		return out;
+	}
+
+	@Override
+	public String[] stringConvert() {
+		String[] res = {getPeriod(), getDay(), getTeacher().getClassByPeriod(periodStrToInt()), getTeacher().getInitials(), getCoverage().getInitials()};
+		return res;
 	}
 }

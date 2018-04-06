@@ -1,7 +1,10 @@
 package cs2043.driver;
 
+import java.awt.EventQueue;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -12,55 +15,57 @@ import cs2043.absence.AbsenceRecord;
 import cs2043.teacher.Teacher;
 import cs2043.teacher.TeacherRoster;
 import cs2043.util.WorkbookUtils;
+import spike.GUI;
 
 public class ImportAbsencesDriver {
 
 	public static void main(String[] args) throws Exception {
-		
-			FileInputStream fis = new FileInputStream(new File(WorkbookUtils.WORKBOOK_PATH));
-			XSSFWorkbook wb = new XSSFWorkbook(fis);
 			
-			ArrayList<Teacher> fullTeachers = getFullTeachers(wb);
-			ArrayList<Teacher> supplyTeachers= getSupplyTeachers(wb);
-			TeacherRoster roster = new TeacherRoster(fullTeachers, supplyTeachers);
-			AbsenceRecord record = new AbsenceRecord();
-//			
-//			for (Teacher t : fullTeachers) {
-//				System.out.println(t.toString());
-//				System.out.println(t.printSkills());
-//				System.out.println(t.printSchedule());
-//			}
-		    
-		    for(int week = 0; week < WorkbookUtils.WEEKS_PER_TERM; week++) {
-			    XSSFSheet sheet = wb.getSheetAt(week);
-				int row = WorkbookUtils.TEACHER_ROW_START;
-				Integer id = WorkbookUtils.getIntValue(sheet, row, WorkbookUtils.TEACHER_ID_COL);
-				String initials = WorkbookUtils.getStringValue(sheet, row, WorkbookUtils.TEACHER_INITIALS_COL);
-				
-				// TODO remove Ids from excel spreadsheet for weeks
-				while (WorkbookUtils.isNotBlank(initials)) {
-					// TODO determine what to do when we can't find a teacher by ID - want to tell user I believe
-					Teacher teacher = roster.getFullTeacherById(id);
-					getTeacherAbsences(record, roster, sheet, row, teacher);
-					row++;
-					id = WorkbookUtils.getIntValue(sheet, row, WorkbookUtils.TEACHER_ID_COL);
-	    			initials = WorkbookUtils.getStringValue(sheet, row, WorkbookUtils.TEACHER_INITIALS_COL);
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					GUI frame = new GUI();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
+			}
+		});
+	}
+
+	public static School importAbsences(File file) throws FileNotFoundException, IOException {
+		FileInputStream fis = new FileInputStream(file);
+		XSSFWorkbook wb = new XSSFWorkbook(fis);
+		
+		ArrayList<Teacher> fullTeachers = getFullTeachers(wb);
+		ArrayList<Teacher> supplyTeachers= getSupplyTeachers(wb);
+		TeacherRoster roster = new TeacherRoster(fullTeachers, supplyTeachers);
+		AbsenceRecord record = new AbsenceRecord();
+	    
+	    for(int week = 0; week < WorkbookUtils.WEEKS_PER_TERM; week++) {
+		    XSSFSheet sheet = wb.getSheetAt(week);
+			int row = WorkbookUtils.TEACHER_ROW_START;
+			Integer id = WorkbookUtils.getIntValue(sheet, row, WorkbookUtils.TEACHER_ID_COL);
+			String initials = WorkbookUtils.getStringValue(sheet, row, WorkbookUtils.TEACHER_INITIALS_COL);
 			
-		    }
-		    
-//		    System.out.println(record.toString());
-//		    testCoverages(record, roster);
-		    for (Absence a : record.getAbsencesByWeek(2)) {
-		    	System.out.println(a);
-		    }
-		    assignment(record, roster, 2);
-	    	System.out.println("assignment done");
-	    	for (Absence a : record.getAbsencesByWeek(2)) {
-		    	System.out.println(a);
-		    }
-	    	checkTalliesByWeek(record, roster, 2);
-		    wb.close();
+			// TODO remove Ids from excel spreadsheet for weeks
+			while (WorkbookUtils.isNotBlank(initials)) {
+				// TODO determine what to do when we can't find a teacher by ID - want to tell user I believe
+				Teacher teacher = roster.getFullTeacherById(id);
+				getTeacherAbsences(record, roster, sheet, row, teacher);
+				row++;
+				id = WorkbookUtils.getIntValue(sheet, row, WorkbookUtils.TEACHER_ID_COL);
+    			initials = WorkbookUtils.getStringValue(sheet, row, WorkbookUtils.TEACHER_INITIALS_COL);
+			}
+		
+	    }
+	    
+//	    System.out.println(record.toString());
+//	    testCoverages(record, roster);
+//    	checkTalliesByWeek(record, roster, 2);
+    	School school = new School(record, roster);
+	    wb.close();
+	    return school;
 	}
 
 	private static void getTeacherAbsences(AbsenceRecord record, TeacherRoster roster, XSSFSheet sheet, int row, Teacher teacher) {
@@ -142,21 +147,6 @@ public class ImportAbsencesDriver {
 		ArrayList<Absence> w1absences = record.getUncoveredAbsencesByWeek(1);
 		for (Absence a : w1absences) {
 			System.out.println(a.toString());
-		}
-	}
-	
-	public static void assignment(AbsenceRecord record, TeacherRoster roster, int week) {
-		for (Absence uncovered : record.getUncoveredAbsencesByWeek(week)) {
-			int weekNum = uncovered.getWeekNum();
-			int period = uncovered.periodStrToInt();
-			String day = uncovered.getDay();
-			for (Teacher t : roster.getFullTeacherWithFreePeriod(period)) {
-				// if teacher isn't already covering absence
-				if (!record.isTeacherCovering(t, weekNum, period, day)) {
-					uncovered.setCoverage(t);
-					break;
-				}
-			}
 		}
 	}
 	

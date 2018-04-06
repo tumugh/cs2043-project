@@ -1,29 +1,33 @@
 package spike;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.File;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableModel;
-
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import javax.swing.JLabel;
-import javax.swing.SwingConstants;
-import javax.swing.JTable;
-import javax.swing.JTextPane;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
 
-public class GUISpike extends JFrame implements ActionListener{
+import cs2043.absence.Absence;
+import cs2043.driver.ImportAbsencesDriver;
+import cs2043.driver.School;
+
+public class GUI extends JFrame implements ActionListener{
 
 	private JPanel contentPane;
 	private JButton btnOpenFile, btnPrint, btnAssignCoverage;
@@ -32,7 +36,9 @@ public class GUISpike extends JFrame implements ActionListener{
 	private static int numColumns;
 	//private static final int COLUMN_PERIOD = 0; //will be for sorting
 	private JLabel lblDate, lblCurrentFile;
-
+	private School school = null;
+	private JTable table;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -40,7 +46,7 @@ public class GUISpike extends JFrame implements ActionListener{
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					GUISpike frame = new GUISpike();
+					GUI frame = new GUI();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -52,7 +58,7 @@ public class GUISpike extends JFrame implements ActionListener{
 	/**
 	 * Create the frame.
 	 */
-	public GUISpike() {
+	public GUI() {
 		setTitle("On-call Tracker");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 700, 600);
@@ -118,15 +124,16 @@ public class GUISpike extends JFrame implements ActionListener{
 		btnAssignCoverage.setBounds(524, 142, 152, 25);
 		contentPane.add(btnAssignCoverage);
 		
-		String[] columnNames = {"Period", "Class", "Room", "Absentee", "Coverage"};
+		//TODO make this dynamic
+		String[] columnNames = {"Period", "Day", "Class", "Absentee", "Coverage"};
 		setColumns(columnNames.length);
 		dtm = new DefaultTableModel(columnNames, 0);
-		JTable table = new JTable(dtm);
+		table = new JTable(dtm);
 		
 		JScrollPane scrTable = new JScrollPane(table);
 		scrTable.setBounds(12, 47, 500, 238);
 		table.setFillsViewportHeight(true);
-		//table.setAutoCreateRowSorter(true);
+		table.setAutoCreateRowSorter(true);
 		contentPane.add(scrTable);
 		
 		JScrollPane scrCurrentFile = new JScrollPane();
@@ -139,28 +146,50 @@ public class GUISpike extends JFrame implements ActionListener{
 	}
 	
 	public void actionPerformed(ActionEvent e) {
+		// bad practice to set to null TODO
 		if (e.getSource() == btnOpenFile) {
-			int returnVal = fc.showOpenDialog(GUISpike.this);
+			int returnVal = fc.showOpenDialog(GUI.this);
 
 	        if (returnVal == JFileChooser.APPROVE_OPTION) {
 	            File file = fc.getSelectedFile();
 	            lblCurrentFile.setText("Current File: " + file.getAbsolutePath());
-	            //System.out.println(file.getAbsolutePath());
+	            try {
+					school = ImportAbsencesDriver.importAbsences(file);
+				} catch (FileNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 	        }
-		}
-		
-		else if (e.getSource() == btnAssignCoverage) {
-			System.out.println("Assign Button Test");
-		}
-		
-		else if (e.getSource() == btnPrint) {
-			PrinterJob pj = PrinterJob.getPrinterJob();
-			if (pj.printDialog()) {
-		        try {pj.print();}
-		        catch (PrinterException exc) {
-		            System.out.println(exc);
-		         }
-		     } 
+		} else if (e.getSource() == btnAssignCoverage) {
+			//TODO add school null check
+//			for (Absence a : school.getRecord().getAbsencesByWeek(2)) {
+//		    	System.out.println(a);
+//		    }
+			school.assignmentCoveragesForWeek(2);
+			ArrayList<Absence> covered = school.getRecord().getAbsencesByWeek(2);
+//			for (Absence a : school.getRecord().getAbsencesByWeek(2)) {
+//		    	System.out.println(a);
+//		    }
+			for (Absence a : covered) {
+				newRow(dtm, a.stringConvert());
+			}
+		} else if (e.getSource() == btnPrint) {
+			try {
+				table.print();
+			} catch (PrinterException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+//			PrinterJob pj = PrinterJob.getPrinterJob();
+//			if (pj.printDialog()) {
+//		        try {pj.print();}
+//		        catch (PrinterException exc) {
+//		            System.out.println(exc);
+//		         }
+//		     } 
 		}
 	}
 	
@@ -183,10 +212,10 @@ public class GUISpike extends JFrame implements ActionListener{
 	}
 	
 	//Requires a class to implement Stringable
-	public static void newRow(DefaultTableModel model, Stringable list) {
-		ArrayList<String[]> data = list.stringConvert();
-		newRow(model, data);
-	}
+//	public static void newRow(DefaultTableModel model, Stringable list) {
+//		ArrayList<String[]> data = list.stringConvert();
+//		newRow(model, data);
+//	}
 	
 	private static void setColumns(int amount) {
 		numColumns = amount;
