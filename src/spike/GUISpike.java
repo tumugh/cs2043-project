@@ -27,6 +27,8 @@ public class GUISpike extends JFrame implements ActionListener{
 	private JButton btnOpenFile, btnPrint, btnAssignCoverage;
 	private static DefaultTableModel dtm;
 	final JFileChooser fc = new JFileChooser();
+	private static int numColumns;
+	private static final int COLUMN_PERIOD = 0; //will be for sorting
 
 	/**
 	 * Launch the application.
@@ -115,14 +117,14 @@ public class GUISpike extends JFrame implements ActionListener{
 		contentPane.add(btnAssignCoverage);
 		
 		String[] columnNames = {"Period", "Class", "Room", "Absentee", "Coverage"};
-		dtm = new DefaultTableModel(0, 0);
-		dtm.setColumnIdentifiers(columnNames);
-		JTable table = new JTable();
-		table.setModel(dtm);
+		setColumns(columnNames.length);
+		dtm = new DefaultTableModel(columnNames, 0);
+		JTable table = new JTable(dtm);
 		
 		JScrollPane scrollPane = new JScrollPane(table);
 		scrollPane.setBounds(12, 12, 500, 238);
 		table.setFillsViewportHeight(true);
+		//table.setAutoCreateRowSorter(true);
 		contentPane.add(scrollPane);
 	}
 	
@@ -148,8 +150,31 @@ public class GUISpike extends JFrame implements ActionListener{
 		}
 	}
 	
+	/**
+	 * These overloaded newRow methods rely on information being in the correct column format already.
+	 */
 	public static void newRow(DefaultTableModel model) {
-		String[] data = new String[5];
+		String[] data = new String[numColumns];
 		model.addRow(data);
+	}
+	
+	public static void newRow(DefaultTableModel model, String[] data) {
+		model.addRow(data);
+	}
+	
+	public static void newRow(DefaultTableModel model, ArrayList<String[]> list) {
+		for(int i=0; i<list.size(); i++) {
+			model.addRow(list.get(i));
+		}
+	}
+	
+	//Requires a class to implement Stringable
+	public static void newRow(DefaultTableModel model, Stringable list) {
+		ArrayList<String[]> data = list.stringConvert();
+		newRow(model, data);
+	}
+	
+	private static void setColumns(int amount) {
+		numColumns = amount;
 	}
 }
