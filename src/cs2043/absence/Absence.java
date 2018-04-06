@@ -7,16 +7,16 @@ public class Absence {
 	private String period;
 	private String day;
 	private String week;
-	Teacher teacher;
-	Teacher coverage;
+	private Teacher teacher;
+	private Teacher coverage;
 	
 	public Absence(Teacher teacher, String period, String day, String week) {
 		super();
 		this.teacher = teacher;
+		this.coverage = null;
 		this.period = period;
 		this.day = day;
 		this.week = week;
-		this.coverage = null;
 	}
 	
 	public Absence(Teacher teacher, Teacher coverage, String period, String day, String week) {
@@ -52,17 +52,36 @@ public class Absence {
 		this.week = week;
 	}
 	
+	// should just change week to be an int field
+	public int getWeekNum() {
+		return Integer.parseInt(week.substring(5));
+	}
+	
+	public Teacher getTeacher() {
+		return teacher;
+	}
+
 	public void setTeacher(Teacher teacher) {
 		this.teacher = teacher;
 	}
 	
-	public Teacher getTeacher(Teacher teacher) {
-		return teacher;
+	public Teacher getCoverage() {
+		return coverage;
 	}
+
+	public void setCoverage(Teacher coverage) {
+		this.coverage = coverage;
+	}
+	
 	
 	public String toString() {
 		String out = "ID: " + teacher.getId() + " Initials: " +  teacher.getInitials()
-		 		   + "\n\t" + getWeek() + " " + getDay() + " Period " + getPeriod();
+		 		   + "\n\t" + getWeekNum() + " " + getDay() + " Period " + getPeriod();
+		if (coverage != null) {
+			out = out + "\n\tCovered by: " + coverage.getId() + " - " + coverage.getInitials();
+		} else {
+			out = out + "\n\tNot covered!";
+		}
 		return out;
 	}
 }

@@ -1,6 +1,9 @@
 package cs2043.util;
 
+import org.apache.commons.codec.binary.StringUtils;
 import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 
 public class WorkbookUtils {
@@ -38,6 +41,22 @@ public class WorkbookUtils {
 	
 	public static String getPeriod(XSSFSheet sheet, int col) {
 		return getCellValueAsString(sheet, 3, col);
+	}
+	
+	public static boolean isEmptyRow(XSSFSheet sheet, int rn) {
+		XSSFRow row = sheet.getRow(rn);
+		if (row == null) {
+			return true;
+		}
+		
+//		for (int i = row.getFirstCellNum(); i < row.getLastCellNum(); i++) {
+//			XSSFCell cell = row.getCell(i);
+//	        if (cell == null || cell.getStringCellValue() == " ") {
+//	        	return true;
+//	        }
+//		}
+		
+		return false;
 	}
 	
 	//TODO Throw Exception if col not valid day reference

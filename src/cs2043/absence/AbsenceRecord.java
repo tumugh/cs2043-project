@@ -13,6 +13,28 @@ public class AbsenceRecord {
 	public void addAbsences(Absence a) {
 		absences.add(a);
 	}
+
+	public ArrayList<Absence> getAbsencesByWeek(int weekNum) {
+		ArrayList<Absence> weekAbsences = new ArrayList<Absence>();
+		for (Absence a : absences) {
+			if (a.getWeekNum() == weekNum) {
+				weekAbsences.add(a);
+			}
+		}
+		
+		return weekAbsences;
+	}
+	
+	public ArrayList<Absence> getUncoveredAbsencesByWeek(int weekNum) {
+		ArrayList<Absence> uncovered = new ArrayList<Absence>();
+		for (Absence a : absences) {
+			if (a.getWeekNum() == weekNum && a.getCoverage() == null) {
+				uncovered.add(a);
+			}
+		}
+		
+		return uncovered;
+	}
 	
 //	private void getAbsencesByDate() {
 //	
