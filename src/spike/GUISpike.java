@@ -1,6 +1,8 @@
 package spike;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
 import java.io.File;
 
 import javax.swing.JFrame;
@@ -26,9 +28,10 @@ public class GUISpike extends JFrame implements ActionListener{
 	private JPanel contentPane;
 	private JButton btnOpenFile, btnPrint, btnAssignCoverage;
 	private static DefaultTableModel dtm;
-	final JFileChooser fc = new JFileChooser();
+	private final JFileChooser fc = new JFileChooser();
 	private static int numColumns;
-	private static final int COLUMN_PERIOD = 0; //will be for sorting
+	//private static final int COLUMN_PERIOD = 0; //will be for sorting
+	private JLabel lblDate, lblCurrentFile;
 
 	/**
 	 * Launch the application.
@@ -60,10 +63,9 @@ public class GUISpike extends JFrame implements ActionListener{
 		
 		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 		Date date = new Date();
-		JTextPane txtpnDate = new JTextPane();
-		txtpnDate.setText("Date: " + dateFormat.format(date));
-		txtpnDate.setBounds(524, 47, 143, 21);
-		contentPane.add(txtpnDate);
+		lblDate = new JLabel("Date: " + dateFormat.format(date));
+		lblDate.setBounds(524, 47, 143, 21);
+		contentPane.add(lblDate);
 		
 		btnOpenFile = new JButton("Open File");
 		btnOpenFile.addActionListener(this);
@@ -76,7 +78,7 @@ public class GUISpike extends JFrame implements ActionListener{
 		contentPane.add(btnPrint);
 		
 		JPanel panelCoverage = new JPanel();
-		panelCoverage.setBounds(12, 262, 500, 286);
+		panelCoverage.setBounds(12, 299, 500, 249);
 		contentPane.add(panelCoverage);
 		panelCoverage.setLayout(null);
 		
@@ -121,11 +123,19 @@ public class GUISpike extends JFrame implements ActionListener{
 		dtm = new DefaultTableModel(columnNames, 0);
 		JTable table = new JTable(dtm);
 		
-		JScrollPane scrollPane = new JScrollPane(table);
-		scrollPane.setBounds(12, 12, 500, 238);
+		JScrollPane scrTable = new JScrollPane(table);
+		scrTable.setBounds(12, 47, 500, 238);
 		table.setFillsViewportHeight(true);
 		//table.setAutoCreateRowSorter(true);
-		contentPane.add(scrollPane);
+		contentPane.add(scrTable);
+		
+		JScrollPane scrCurrentFile = new JScrollPane();
+		scrCurrentFile.setBounds(12, 0, 500, 50);
+		contentPane.add(scrCurrentFile);
+		
+		lblCurrentFile = new JLabel("Current File: None selected.");
+		scrCurrentFile.setViewportView(lblCurrentFile);
+		
 	}
 	
 	public void actionPerformed(ActionEvent e) {
@@ -134,19 +144,23 @@ public class GUISpike extends JFrame implements ActionListener{
 
 	        if (returnVal == JFileChooser.APPROVE_OPTION) {
 	            File file = fc.getSelectedFile();
-	            System.out.println(file.getAbsolutePath());
-	            // Temporarily just prints to console; will collaborate to integrate with WorkbookUtils, possibly.
+	            lblCurrentFile.setText("Current File: " + file.getAbsolutePath());
+	            //System.out.println(file.getAbsolutePath());
 	        }
 		}
 		
 		else if (e.getSource() == btnAssignCoverage) {
 			System.out.println("Assign Button Test");
-			// TODO: create static methods to take info from an absence, and fill the JTable with it.
 		}
 		
 		else if (e.getSource() == btnPrint) {
-			System.out.println("Print Button Test");
-			// will send output of assigned substitutes to printer
+			PrinterJob pj = PrinterJob.getPrinterJob();
+			if (pj.printDialog()) {
+		        try {pj.print();}
+		        catch (PrinterException exc) {
+		            System.out.println(exc);
+		         }
+		     } 
 		}
 	}
 	
@@ -176,5 +190,30 @@ public class GUISpike extends JFrame implements ActionListener{
 	
 	private static void setColumns(int amount) {
 		numColumns = amount;
+	}
+	
+	public String getDate() {
+		return lblDate.getText();
+	}
+	
+	/**
+	 * Ideally, this will prepare a page containing the necessary info from the JTable. TODO
+	 */
+	private static void printOut() {
+		
+	}
+	//TODO
+	private static String lorem() {
+		String result = "";
+		for (int i=0; i<10; i++) {
+			result+= "Lorem ipsum dolor sit amet," + "consectetur adipiscing elit, "
+					+ "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
+					+ "Ut enim ad minim veniam, "
+					+ "quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. "
+					+ "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. "
+					+ "Excepteur sint occaecat cupidatat non proident, "
+					+ "sunt in culpa qui officia deserunt mollit anim id est laborum.";
+		}
+		return result;
 	}
 }
