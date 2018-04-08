@@ -81,4 +81,20 @@ public class WorkbookUtils {
 			return "Busted";
 		}
 	}
+	
+	public static int convertWeekToMonth(int week) {
+		if (week <= 4 && week >= 1) {
+			return 1;
+		} else if (week <= 8 && week >= 5) {
+			return 2;
+		} else if (week <= 12 && week >= 19) {
+			return 3;
+		} else if (week <= 16 && week >= 13) {
+			return 4;
+		} else if (week <= 20 && week >= 17) {
+			return 5;
+		} else {
+			return -1;
+		}
+	}
 }

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 
+import cs2043.absence.Absence;
+import cs2043.absence.AbsenceRecord;
 import cs2043.util.WorkbookUtils;
 
 public class Teacher {
@@ -82,6 +84,41 @@ public class Teacher {
 			}
 			period++;
 		}
+	}
+	
+	public int checkTalliesByWeek(AbsenceRecord record, int week) {
+		int count = 0;
+		for (Absence covered : record.getCoveredAbsencesByWeek(week)) {
+			// This is HORRIBLE TODO
+			if (covered.getCoverage().getSkills().size() != 0 && covered.getCoverage().getId() == getId()) {
+				count++;
+			}
+		}
+		return count;
+	}
+	
+	public int checkTalliesByMonth(AbsenceRecord record, int month) {
+//		1 = 1-4
+//		2 = 5-8
+//		3 = 9-12
+//		4 = 13 - 16
+//		5 = 17 - 20
+//		assumption month is 4 weeks
+		int endWeek = month * 4;
+		int startWeek = endWeek - 3;
+		int count = 0;
+		for (int week = startWeek; week <= endWeek; week++) {
+			count = count + checkTalliesByWeek(record, week);
+		}
+		return count;
+	}
+	
+	public int checkTalliesByTerm(AbsenceRecord record) {
+		int count = 0;
+		for (int month = 1; month <= 5; month++) {
+			count = count + checkTalliesByMonth(record, month);
+		}
+		return count;
 	}
 	
 	public String printSchedule() {

@@ -26,6 +26,9 @@ import javax.swing.table.DefaultTableModel;
 import cs2043.absence.Absence;
 import cs2043.driver.ImportAbsencesDriver;
 import cs2043.driver.School;
+import cs2043.teacher.Teacher;
+import cs2043.util.WorkbookUtils;
+
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 
@@ -33,10 +36,8 @@ public class GUI extends JFrame implements ActionListener{
 
 	private JPanel contentPane;
 	private JButton btnOpenFile, btnPrint, btnAssignCoverage;
-	private static DefaultTableModel dtm;
+	private static DefaultTableModel dtm, dtm2;
 	private final JFileChooser fc = new JFileChooser();
-	private static int numColumns;
-	//private static final int COLUMN_PERIOD = 0; //will be for sorting
 	private JLabel lblDate, lblCurrentFile;
 	private JTable tblAssignments;
 	private JTable tblCoverageStats;
@@ -60,9 +61,6 @@ public class GUI extends JFrame implements ActionListener{
 		});
 	}
 
-	/**
-	 * Create the frame.
-	 */
 	public GUI() {
 		setTitle("On-call Tracker");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -96,7 +94,6 @@ public class GUI extends JFrame implements ActionListener{
 		
 		//TODO make this dynamic
 		String[] columnNames = {"Period", "Day", "Class", "Absentee", "Coverage"};
-		setColumns(columnNames.length);
 		dtm = new DefaultTableModel(columnNames, 0);
 		tblAssignments = new JTable(dtm) {
 			@Override
@@ -125,13 +122,15 @@ public class GUI extends JFrame implements ActionListener{
 		lblCoverageCount.setVerticalAlignment(SwingConstants.BOTTOM);
 		lblCoverageCount.setHorizontalAlignment(SwingConstants.CENTER);
 		
-		JScrollPane scrCoverageStats = new JScrollPane();
-		scrCoverageStats.setBounds(12, 316, 500, 232);
-		contentPane.add(scrCoverageStats);
 		
-		tblCoverageStats = new JTable();
+		String[] columnNames2 = {"Initials", "This Week", "This Month", "Total/Term"};
+		dtm2 = new DefaultTableModel(columnNames2, 0);
+		tblCoverageStats = new JTable(dtm2);
+		
+		JScrollPane scrCoverageStats = new JScrollPane(tblCoverageStats);
+		scrCoverageStats.setBounds(12, 316, 500, 232);
 		tblCoverageStats.setFillsViewportHeight(true);
-		scrCoverageStats.setViewportView(tblCoverageStats);
+		contentPane.add(scrCoverageStats);
 		
 		cmbWeek = new JComboBox();
 		cmbWeek.setBounds(524, 188, 152, 25);
@@ -140,14 +139,12 @@ public class GUI extends JFrame implements ActionListener{
 		for (int i=1; i<=20; i++) {
 			cmbWeek.addItem("" + i);
 		}
-	
 		
 		String[] days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "All"};
 		cmbDay = new JComboBox(days);
 		cmbDay.setBounds(524, 234, 152, 24);
 		contentPane.add(cmbDay);
 		cmbDay.setEditable(false);
-		
 		
 		JLabel lblWeek = new JLabel("Week");
 		lblWeek.setBounds(524, 170, 70, 15);
@@ -158,8 +155,9 @@ public class GUI extends JFrame implements ActionListener{
 		contentPane.add(lblDay);
 		//TODO finish table settings & columns
 		
+		
+		
 	}
-	
 	
 	public void actionPerformed(ActionEvent e) {
 		// bad practice to set to null TODO
@@ -185,23 +183,8 @@ public class GUI extends JFrame implements ActionListener{
 			int currentWeek;
 			currentDay = cmbDay.getSelectedItem().toString();
 			currentWeek = Integer.parseInt((String)cmbWeek.getSelectedItem());
-			
 			school.assignCoveragesForWeek(currentWeek);
-			if(currentDay.equals("All")) {
-				ArrayList<Absence> covered = school.getRecord().getAbsencesByWeek(currentWeek);
-				for (Absence a : covered) {
-					newRow(dtm, a.stringConvert());
-				}
-			}
-			else {
-				for(int i=0; i<5; i++) {
-					ArrayList<Absence> covered = school.getRecord().getCoveredAbsencesByDate(currentWeek, i, currentDay);
-					 	for (Absence a : covered) {
-					 		newRow(dtm, a.stringConvert());
-						}
-					}
-				}
-			
+
 			try {
 				// go back into spreadsheet and write coverage ID
 				ImportAbsencesDriver.writeAssignmentsToWorkbook(file, school, currentWeek-1);
@@ -211,6 +194,8 @@ public class GUI extends JFrame implements ActionListener{
 			} catch (NullPointerException e2) {
 				JOptionPane.showMessageDialog(null, "There are some absences we cannot cover with available teachers, please correct file", "UNCOVERED", JOptionPane.WARNING_MESSAGE);
 			}
+			displayCoverages(currentDay, currentWeek);
+			displayTallies(currentWeek);
 		} else if (e.getSource() == btnPrint) {
 			try {
 				tblAssignments.print();
@@ -220,15 +205,37 @@ public class GUI extends JFrame implements ActionListener{
 			}
 		}
 	}
+
+	private void displayCoverages(String currentDay, int week) {
+		if(currentDay.equals("All")) {
+			ArrayList<Absence> covered = school.getRecord().getAbsencesByWeek(week);
+			for (Absence a : covered) {
+				newRow(dtm, a.stringConvert());
+			}
+		}  else {
+			for(int i=0; i<5; i++) {
+				ArrayList<Absence> covered = school.getRecord().getCoveredAbsencesByDate(week, i, currentDay);
+				for (Absence a : covered) {
+					newRow(dtm, a.stringConvert());
+				}
+			}
+		}
+	}
+	
+	
+	public void displayTallies(int week) {
+		for (Teacher t : school.getRoster().getFullTeachers()) {
+			String[] res = {t.getInitials(),
+					t.checkTalliesByWeek(school.getRecord(), week) + "",
+					t.checkTalliesByMonth(school.getRecord(), WorkbookUtils.convertWeekToMonth(week)) + "", 
+					t.checkTalliesByTerm(school.getRecord()) + ""};
+			newRow(dtm2, res);
+		}
+	}
 	
 	/**
 	 * These overloaded newRow methods rely on information being in the correct column format already.
 	 */
-	public static void newRow(DefaultTableModel model) {
-		String[] data = new String[numColumns];
-		model.addRow(data);
-	}
-	
 	public static void newRow(DefaultTableModel model, String[] data) {
 		model.addRow(data);
 	}
@@ -244,10 +251,6 @@ public class GUI extends JFrame implements ActionListener{
 //		ArrayList<String[]> data = list.stringConvert();
 //		newRow(model, data);
 //	}
-	
-	private static void setColumns(int amount) {
-		numColumns = amount;
-	}
 	
 	public String getDate() {
 		return lblDate.getText();

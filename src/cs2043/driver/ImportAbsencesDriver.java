@@ -79,14 +79,9 @@ public class ImportAbsencesDriver {
 		
 		while (WorkbookUtils.isNotBlank(initials)) {
 			Teacher teacher = school.getRoster().getFullTeacherById(id);
-			System.out.println(teacher.getId() + teacher.getInitials());
-
-			
 			for (int col = WorkbookUtils.START_COL; col <= WorkbookUtils.END_COL; col++) {
 				// If VP indicates teacher is absent on workbook
-				System.out.println(WorkbookUtils.getCellValueAsString(sheet, row, col));
 				if (WorkbookUtils.getCellValueAsString(sheet, row, col).equalsIgnoreCase(WorkbookUtils.ABSENCE_INDICATOR)) {
-					System.out.println("Hello");
 					Absence ab = school.getRecord().findAbsence(teacher, WorkbookUtils.getPeriod(sheet,col), WorkbookUtils.getDay(sheet, col), sheet.getSheetName());
 					sheet.getRow(row).getCell(col).setCellValue(ab.getCoverage().getId());
 				}
@@ -172,38 +167,5 @@ public class ImportAbsencesDriver {
 	}
 
 	
-	public static void checkTalliesByWeek(AbsenceRecord record, TeacherRoster roster, int week) {
-		for (Teacher t : roster.getFullTeachers()) {
-			int count = 0;
-			for (Absence covered : record.getCoveredAbsencesByWeek(week)) {
-				// TODO count will be messed up since ID could be of supply
-				if (covered.getCoverage().getId() == t.getId()) {
-					count++;
-				}
-			}
-			System.out.println(t.toString() + " Covered " + count + " absences");
-		}
-	}
 	
-	public static void checkTalliesByMonth(AbsenceRecord record, TeacherRoster roster, int month) {
-//		1 = 1-4
-//		2 = 5-8
-//		3 = 9-12
-//		4 = 13 - 16
-//		5 = 17 - 20
-//		assumption month is 4 weeks
-		int endWeek = month * 4;
-		int startWeek = endWeek - 3;
-		for (Teacher t : roster.getFullTeachers()) {
-			int count = 0;
-			for (int week = startWeek; startWeek <= endWeek; week++) {
-				for (Absence covered : record.getCoveredAbsencesByWeek(week)) {
-					if (covered.getCoverage().getId() == t.getId()) {
-						count++;
-					}
-				}
-			}
-			System.out.println(t.toString() + " Covered " + count + " absences");
-		}
-	}
 }
