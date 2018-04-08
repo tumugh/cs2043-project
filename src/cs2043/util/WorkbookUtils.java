@@ -17,6 +17,7 @@ public class WorkbookUtils {
 	public static final int SCHEDULE_PERIOD4_COL = 6;
 	public static final int FULL_TEACHER_SHEET= 20;
 	public static final int SUPPLY_TEACHER_SHEET= 21;
+	public static final String FREE_PERIOD = "FREE";
 
 	public static final String SPIKE_WORKBOOK_PATH = "workbook/spike.xlsx";
 	public static final String WORKBOOK_PATH = "workbook/workbook.xlsx";

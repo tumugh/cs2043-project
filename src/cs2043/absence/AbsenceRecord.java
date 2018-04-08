@@ -12,8 +12,19 @@ public class AbsenceRecord {
 		absences = new ArrayList<Absence>();
 	}
 	
-	public void addAbsences(Absence a) {
+	public void addAbsence(Absence a) {
 		absences.add(a);
+	}
+	
+	public Absence findAbsence(Teacher teacher, String period, String day, String week) {
+		for (Absence a : absences) {
+			if (a.getWeek().equals(week) && a.getPeriod().equals(period) && a.getDay().equals(day) && a.getTeacher().getId() == teacher.getId()) {
+				return a;
+			}
+		}
+		
+		//TODO what to do here
+		return null;
 	}
 
 	public ArrayList<Absence> getAbsencesByWeek(int weekNum) {
@@ -60,14 +71,16 @@ public class AbsenceRecord {
 		return covered;
 	}
 	
-//	private void getAbsencesByDate() {
-//	
-//}
-	
-//	private void getAbsencesByTeacher() {
-//		
-//	}
-	
+	public boolean isTeacherCovering(Teacher t, int weekNum, int period, String day) {
+		for (Absence covered : getCoveredAbsencesByDate(weekNum, period, day)) {
+			if (covered.getCoverage().getId() == t.getId()) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
 	public String toString(){
 		String out = "";
 		for (Absence a : absences) {
@@ -76,13 +89,4 @@ public class AbsenceRecord {
 		return out;
 	}
 
-	public boolean isTeacherCovering(Teacher t, int weekNum, int period, String day) {
-		for (Absence covered : getCoveredAbsencesByDate(weekNum, period, day)) {
-			if (covered.getCoverage().getId() == t.getId()) {
-				return true;
-			}
-		}
-		// TODO Auto-generated method stub
-		return false;
-	}
 }

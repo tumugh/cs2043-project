@@ -36,10 +36,11 @@ public class GUI extends JFrame implements ActionListener{
 	private static int numColumns;
 	//private static final int COLUMN_PERIOD = 0; //will be for sorting
 	private JLabel lblDate, lblCurrentFile;
-	private School school = null;
 	private JTable tblAssignments;
 	private JTable tblCoverageStats;
 	private JComboBox cmbDay, cmbWeek;
+	private School school = null;
+	private File file;
 	
 	/**
 	 * Launch the application.
@@ -164,7 +165,7 @@ public class GUI extends JFrame implements ActionListener{
 			int returnVal = fc.showOpenDialog(GUI.this);
 
 	        if (returnVal == JFileChooser.APPROVE_OPTION) {
-	            File file = fc.getSelectedFile();
+	            file = fc.getSelectedFile();
 	            lblCurrentFile.setText("Current File: " + file.getAbsolutePath());
 	            try {
 					school = ImportAbsencesDriver.importAbsences(file);
@@ -183,11 +184,14 @@ public class GUI extends JFrame implements ActionListener{
 			currentDay = cmbDay.getSelectedItem().toString();
 			currentWeek = Integer.parseInt((String)cmbWeek.getSelectedItem());
 			
-			//TODO add school null check
-//			for (Absence a : school.getRecord().getAbsencesByWeek(2)) {
-//		    	System.out.println(a);
-//		    }
-			school.assignmentCoveragesForWeek(currentWeek);
+			school.assignCoveragesForWeek(currentWeek);
+			try {
+				// go back into spreadsheet and write coverage ID
+				ImportAbsencesDriver.writeAssignmentsToWorkbook(file, school, 2-1);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			if(currentDay.equals("All")) {
 				ArrayList<Absence> covered = school.getRecord().getAbsencesByWeek(currentWeek);
 				for (Absence a : covered) {
@@ -202,10 +206,6 @@ public class GUI extends JFrame implements ActionListener{
 					}
 				}
 			}
-//			ArrayList<Absence> covered = school.getRecord().getAbsencesByWeek(currentWeek);
-//			for (Absence a : school.getRecord().getAbsencesByWeek(2)) {
-//		    	System.out.println(a);
-//		    }
 		} else if (e.getSource() == btnPrint) {
 			try {
 				tblAssignments.print();
@@ -213,8 +213,7 @@ public class GUI extends JFrame implements ActionListener{
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			
-		} 
+		}
 	}
 	
 	/**

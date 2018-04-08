@@ -31,7 +31,7 @@ public class School {
 		this.roster = roster;
 	}
 	
-	public void assignmentCoveragesForWeek(int week) {
+	public void assignCoveragesForWeek(int week) {
 		for (Absence uncovered : record.getUncoveredAbsencesByWeek(week)) {
 			int weekNum = uncovered.getWeekNum();
 			int period = uncovered.periodStrToInt();
