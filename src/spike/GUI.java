@@ -62,6 +62,7 @@ public class GUI extends JFrame implements ActionListener{
 		setTitle("On-call Tracker");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 700, 600);
+		this.setResizable(false);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -128,7 +129,13 @@ public class GUI extends JFrame implements ActionListener{
 		String[] columnNames = {"Period", "Day", "Class", "Absentee", "Coverage"};
 		setColumns(columnNames.length);
 		dtm = new DefaultTableModel(columnNames, 0);
-		table = new JTable(dtm);
+		table = new JTable(dtm) {
+			@Override
+		    public boolean isCellEditable(int row, int column) {
+		        return false;
+		    }
+		};
+		table.getTableHeader().setReorderingAllowed(false);
 		
 		JScrollPane scrTable = new JScrollPane(table);
 		scrTable.setBounds(12, 47, 500, 238);
