@@ -3,7 +3,6 @@ import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.print.PrinterException;
-import java.awt.print.PrinterJob;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -26,6 +25,7 @@ import javax.swing.table.DefaultTableModel;
 import cs2043.absence.Absence;
 import cs2043.driver.ImportAbsencesDriver;
 import cs2043.driver.School;
+import javax.swing.JComboBox;
 
 public class GUI extends JFrame implements ActionListener{
 
@@ -39,6 +39,7 @@ public class GUI extends JFrame implements ActionListener{
 	private School school = null;
 	private JTable tblAssignments;
 	private JTable tblCoverageStats;
+	private JComboBox cmbDay, cmbWeek;
 	
 	/**
 	 * Launch the application.
@@ -82,7 +83,7 @@ public class GUI extends JFrame implements ActionListener{
 		
 		btnPrint = new JButton("Print");
 		btnPrint.addActionListener(this);
-		btnPrint.setBounds(524, 179, 152, 25);
+		btnPrint.setBounds(524, 270, 152, 25);
 		contentPane.add(btnPrint);
 		
 		btnAssignCoverage = new JButton("Assign Coverage");
@@ -121,26 +122,6 @@ public class GUI extends JFrame implements ActionListener{
 		lblCoverageCount.setVerticalAlignment(SwingConstants.BOTTOM);
 		lblCoverageCount.setHorizontalAlignment(SwingConstants.CENTER);
 		
-		JLabel lblName = new JLabel("Name");
-		lblName.setBounds(524, 299, 70, 15);
-		contentPane.add(lblName);
-		
-		JLabel lblSpare = new JLabel("Spare Period");
-		lblSpare.setBounds(524, 316, 98, 15);
-		contentPane.add(lblSpare);
-		
-		JLabel lblWeek = new JLabel("This Week");
-		lblWeek.setBounds(534, 343, 82, 15);
-		contentPane.add(lblWeek);
-		
-		JLabel lblMonth = new JLabel("This Month");
-		lblMonth.setBounds(522, 368, 90, 15);
-		contentPane.add(lblMonth);
-		
-		JLabel lblTermTotal = new JLabel("Total/Term");
-		lblTermTotal.setBounds(531, 392, 91, 15);
-		contentPane.add(lblTermTotal);
-		
 		JScrollPane scrCoverageStats = new JScrollPane();
 		scrCoverageStats.setBounds(12, 316, 500, 232);
 		contentPane.add(scrCoverageStats);
@@ -148,9 +129,34 @@ public class GUI extends JFrame implements ActionListener{
 		tblCoverageStats = new JTable();
 		tblCoverageStats.setFillsViewportHeight(true);
 		scrCoverageStats.setViewportView(tblCoverageStats);
+		
+		cmbWeek = new JComboBox();
+		cmbWeek.setBounds(524, 188, 152, 25);
+		contentPane.add(cmbWeek);
+		cmbWeek.setEditable(false);
+		for (int i=1; i<=20; i++) {
+			cmbWeek.addItem("" + i);
+		}
+		System.out.println(cmbWeek.getItemCount());
+		
+		String[] days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "All"};
+		cmbDay = new JComboBox(days);
+		cmbDay.setBounds(524, 234, 152, 24);
+		contentPane.add(cmbDay);
+		cmbDay.setEditable(false);
+		System.out.println(cmbDay.getItemCount());
+		
+		JLabel lblWeek = new JLabel("Week");
+		lblWeek.setBounds(524, 170, 70, 15);
+		contentPane.add(lblWeek);
+		
+		JLabel lblDay = new JLabel("Day");
+		lblDay.setBounds(524, 214, 70, 15);
+		contentPane.add(lblDay);
 		//TODO finish table settings & columns
 		
 	}
+	
 	
 	public void actionPerformed(ActionEvent e) {
 		// bad practice to set to null TODO
@@ -171,18 +177,35 @@ public class GUI extends JFrame implements ActionListener{
 				}
 	        }
 		} else if (e.getSource() == btnAssignCoverage) {
+			dtm.setRowCount(0);
+			String currentDay;
+			int currentWeek;
+			currentDay = cmbDay.getSelectedItem().toString();
+			currentWeek = Integer.parseInt((String)cmbWeek.getSelectedItem());
+			
 			//TODO add school null check
 //			for (Absence a : school.getRecord().getAbsencesByWeek(2)) {
 //		    	System.out.println(a);
 //		    }
-			school.assignmentCoveragesForWeek(2);
-			ArrayList<Absence> covered = school.getRecord().getAbsencesByWeek(2);
+			school.assignmentCoveragesForWeek(currentWeek);
+			if(currentDay.equals("All")) {
+				ArrayList<Absence> covered = school.getRecord().getAbsencesByWeek(currentWeek);
+				for (Absence a : covered) {
+					newRow(dtm, a.stringConvert());
+				}
+			}
+			else {
+				for(int i=0; i<5; i++) {
+					ArrayList<Absence> covered = school.getRecord().getCoveredAbsencesByDate(currentWeek, i, currentDay);
+					for (Absence a : covered) {
+						newRow(dtm, a.stringConvert());
+					}
+				}
+			}
+//			ArrayList<Absence> covered = school.getRecord().getAbsencesByWeek(currentWeek);
 //			for (Absence a : school.getRecord().getAbsencesByWeek(2)) {
 //		    	System.out.println(a);
 //		    }
-			for (Absence a : covered) {
-				newRow(dtm, a.stringConvert());
-			}
 		} else if (e.getSource() == btnPrint) {
 			try {
 				tblAssignments.print();
@@ -190,14 +213,8 @@ public class GUI extends JFrame implements ActionListener{
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-//			PrinterJob pj = PrinterJob.getPrinterJob();
-//			if (pj.printDialog()) {
-//		        try {pj.print();}
-//		        catch (PrinterException exc) {
-//		            System.out.println(exc);
-//		         }
-//		     } 
-		}
+			
+		} 
 	}
 	
 	/**
@@ -218,7 +235,7 @@ public class GUI extends JFrame implements ActionListener{
 		}
 	}
 	
-	//Requires a class to implement Stringable
+//	Requires a class to implement Stringable
 //	public static void newRow(DefaultTableModel model, Stringable list) {
 //		ArrayList<String[]> data = list.stringConvert();
 //		newRow(model, data);
