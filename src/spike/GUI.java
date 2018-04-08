@@ -37,7 +37,8 @@ public class GUI extends JFrame implements ActionListener{
 	//private static final int COLUMN_PERIOD = 0; //will be for sorting
 	private JLabel lblDate, lblCurrentFile;
 	private School school = null;
-	private JTable table;
+	private JTable tblAssignments;
+	private JTable tblCoverageStats;
 	
 	/**
 	 * Launch the application.
@@ -84,42 +85,6 @@ public class GUI extends JFrame implements ActionListener{
 		btnPrint.setBounds(524, 179, 152, 25);
 		contentPane.add(btnPrint);
 		
-		JPanel panelCoverage = new JPanel();
-		panelCoverage.setBounds(12, 299, 500, 249);
-		contentPane.add(panelCoverage);
-		panelCoverage.setLayout(null);
-		
-		JLabel lblCoverageCount = new JLabel("Coverage Count to Date");
-		lblCoverageCount.setBounds(0, 12, 500, 15);
-		lblCoverageCount.setVerticalAlignment(SwingConstants.BOTTOM);
-		lblCoverageCount.setHorizontalAlignment(SwingConstants.CENTER);
-		panelCoverage.add(lblCoverageCount);
-		
-		JLabel lblName = new JLabel("Name");
-		lblName.setBounds(10, 39, 70, 15);
-		panelCoverage.add(lblName);
-		
-		JLabel lblSpare = new JLabel("Spare Period");
-		lblSpare.setBounds(80, 39, 98, 15);
-		panelCoverage.add(lblSpare);
-		
-		JLabel lblWeek = new JLabel("This Week");
-		lblWeek.setBounds(190, 39, 82, 15);
-		panelCoverage.add(lblWeek);
-		
-		JLabel lblMonth = new JLabel("This Month");
-		lblMonth.setBounds(295, 39, 90, 15);
-		panelCoverage.add(lblMonth);
-		
-		JLabel lblTermTotal = new JLabel("Total/Term");
-		lblTermTotal.setBounds(397, 39, 91, 15);
-		panelCoverage.add(lblTermTotal);
-		
-		//Likely to delete this weird label line
-		JLabel lblDivider = new JLabel("_________________________________________________________________________________");
-		lblDivider.setBounds(-2, 39, 502, 15);
-		panelCoverage.add(lblDivider);
-		
 		btnAssignCoverage = new JButton("Assign Coverage");
 		btnAssignCoverage.addActionListener(this);
 		btnAssignCoverage.setBounds(524, 142, 152, 25);
@@ -129,19 +94,19 @@ public class GUI extends JFrame implements ActionListener{
 		String[] columnNames = {"Period", "Day", "Class", "Absentee", "Coverage"};
 		setColumns(columnNames.length);
 		dtm = new DefaultTableModel(columnNames, 0);
-		table = new JTable(dtm) {
+		tblAssignments = new JTable(dtm) {
 			@Override
 		    public boolean isCellEditable(int row, int column) {
 		        return false;
 		    }
 		};
-		table.getTableHeader().setReorderingAllowed(false);
+		tblAssignments.getTableHeader().setReorderingAllowed(false);
 		
-		JScrollPane scrTable = new JScrollPane(table);
-		scrTable.setBounds(12, 47, 500, 238);
-		table.setFillsViewportHeight(true);
-		table.setAutoCreateRowSorter(true);
-		contentPane.add(scrTable);
+		JScrollPane scrTableAssignments = new JScrollPane(tblAssignments);
+		scrTableAssignments.setBounds(12, 47, 500, 238);
+		tblAssignments.setFillsViewportHeight(true);
+		tblAssignments.setAutoCreateRowSorter(true);
+		contentPane.add(scrTableAssignments);
 		
 		JScrollPane scrCurrentFile = new JScrollPane();
 		scrCurrentFile.setBounds(12, 0, 500, 50);
@@ -149,6 +114,41 @@ public class GUI extends JFrame implements ActionListener{
 		
 		lblCurrentFile = new JLabel("Current File: None selected.");
 		scrCurrentFile.setViewportView(lblCurrentFile);
+		
+		JLabel lblCoverageCount = new JLabel("Coverage Count to Date");
+		lblCoverageCount.setBounds(12, 297, 500, 15);
+		contentPane.add(lblCoverageCount);
+		lblCoverageCount.setVerticalAlignment(SwingConstants.BOTTOM);
+		lblCoverageCount.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		JLabel lblName = new JLabel("Name");
+		lblName.setBounds(524, 299, 70, 15);
+		contentPane.add(lblName);
+		
+		JLabel lblSpare = new JLabel("Spare Period");
+		lblSpare.setBounds(524, 316, 98, 15);
+		contentPane.add(lblSpare);
+		
+		JLabel lblWeek = new JLabel("This Week");
+		lblWeek.setBounds(534, 343, 82, 15);
+		contentPane.add(lblWeek);
+		
+		JLabel lblMonth = new JLabel("This Month");
+		lblMonth.setBounds(522, 368, 90, 15);
+		contentPane.add(lblMonth);
+		
+		JLabel lblTermTotal = new JLabel("Total/Term");
+		lblTermTotal.setBounds(531, 392, 91, 15);
+		contentPane.add(lblTermTotal);
+		
+		JScrollPane scrCoverageStats = new JScrollPane();
+		scrCoverageStats.setBounds(12, 316, 500, 232);
+		contentPane.add(scrCoverageStats);
+		
+		tblCoverageStats = new JTable();
+		tblCoverageStats.setFillsViewportHeight(true);
+		scrCoverageStats.setViewportView(tblCoverageStats);
+		//TODO finish table settings & columns
 		
 	}
 	
@@ -185,7 +185,7 @@ public class GUI extends JFrame implements ActionListener{
 			}
 		} else if (e.getSource() == btnPrint) {
 			try {
-				table.print();
+				tblAssignments.print();
 			} catch (PrinterException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -230,26 +230,5 @@ public class GUI extends JFrame implements ActionListener{
 	
 	public String getDate() {
 		return lblDate.getText();
-	}
-	
-	/**
-	 * Ideally, this will prepare a page containing the necessary info from the JTable. TODO
-	 */
-	private static void printOut() {
-		
-	}
-	//TODO
-	private static String lorem() {
-		String result = "";
-		for (int i=0; i<10; i++) {
-			result+= "Lorem ipsum dolor sit amet," + "consectetur adipiscing elit, "
-					+ "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
-					+ "Ut enim ad minim veniam, "
-					+ "quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. "
-					+ "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. "
-					+ "Excepteur sint occaecat cupidatat non proident, "
-					+ "sunt in culpa qui officia deserunt mollit anim id est laborum.";
-		}
-		return result;
 	}
 }
