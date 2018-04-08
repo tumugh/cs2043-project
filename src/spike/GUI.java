@@ -15,6 +15,7 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -26,6 +27,7 @@ import cs2043.absence.Absence;
 import cs2043.driver.ImportAbsencesDriver;
 import cs2043.driver.School;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 
 public class GUI extends JFrame implements ActionListener{
 
@@ -138,14 +140,14 @@ public class GUI extends JFrame implements ActionListener{
 		for (int i=1; i<=20; i++) {
 			cmbWeek.addItem("" + i);
 		}
-		System.out.println(cmbWeek.getItemCount());
+	
 		
 		String[] days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "All"};
 		cmbDay = new JComboBox(days);
 		cmbDay.setBounds(524, 234, 152, 24);
 		contentPane.add(cmbDay);
 		cmbDay.setEditable(false);
-		System.out.println(cmbDay.getItemCount());
+		
 		
 		JLabel lblWeek = new JLabel("Week");
 		lblWeek.setBounds(524, 170, 70, 15);
@@ -174,7 +176,7 @@ public class GUI extends JFrame implements ActionListener{
 					e1.printStackTrace();
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					//e1.printStackTrace();
 				}
 	        }
 		} else if (e.getSource() == btnAssignCoverage) {
@@ -185,13 +187,6 @@ public class GUI extends JFrame implements ActionListener{
 			currentWeek = Integer.parseInt((String)cmbWeek.getSelectedItem());
 			
 			school.assignCoveragesForWeek(currentWeek);
-			try {
-				// go back into spreadsheet and write coverage ID
-				ImportAbsencesDriver.writeAssignmentsToWorkbook(file, school, 2-1);
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
 			if(currentDay.equals("All")) {
 				ArrayList<Absence> covered = school.getRecord().getAbsencesByWeek(currentWeek);
 				for (Absence a : covered) {
@@ -201,10 +196,20 @@ public class GUI extends JFrame implements ActionListener{
 			else {
 				for(int i=0; i<5; i++) {
 					ArrayList<Absence> covered = school.getRecord().getCoveredAbsencesByDate(currentWeek, i, currentDay);
-					for (Absence a : covered) {
-						newRow(dtm, a.stringConvert());
+					 	for (Absence a : covered) {
+					 		newRow(dtm, a.stringConvert());
+						}
 					}
 				}
+			
+			try {
+				// go back into spreadsheet and write coverage ID
+				ImportAbsencesDriver.writeAssignmentsToWorkbook(file, school, currentWeek-1);
+			} catch (IOException e1) {			
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (NullPointerException e2) {
+				JOptionPane.showMessageDialog(null, "There are some absences we cannot cover with available teachers, please correct file", "UNCOVERED", JOptionPane.WARNING_MESSAGE);
 			}
 		} else if (e.getSource() == btnPrint) {
 			try {
