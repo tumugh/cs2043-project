@@ -34,30 +34,14 @@ public class GUI extends JFrame implements ActionListener{
 
 	private JPanel contentPane;
 	private JButton btnOpenFile, btnPrint, btnAssignCoverage;
-	private static DefaultTableModel dtm, dtm2;
+	private static DefaultTableModel coverageModel, talliesModel;
 	private final JFileChooser fc = new JFileChooser();
 	private JLabel lblDate, lblCurrentFile;
 	private JTable tblAssignments;
 	private JTable tblCoverageStats;
 	private JComboBox cmbDay, cmbWeek;
-	private Assigner assigner = null;
+	private Assigner assigner;
 	private File file;
-	
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					GUI frame = new GUI();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
 
 	public GUI() {
 		setTitle("On-call Tracker");
@@ -91,8 +75,8 @@ public class GUI extends JFrame implements ActionListener{
 		contentPane.add(btnAssignCoverage);
 		
 		String[] columnNames = {"Period", "Day", "Class", "Absentee", "Coverage"};
-		dtm = new DefaultTableModel(columnNames, 0);
-		tblAssignments = new JTable(dtm) {
+		coverageModel = new DefaultTableModel(columnNames, 0);
+		tblAssignments = new JTable(coverageModel) {
 			@Override
 		    public boolean isCellEditable(int row, int column) {
 		        return false;
@@ -119,10 +103,15 @@ public class GUI extends JFrame implements ActionListener{
 		lblCoverageCount.setVerticalAlignment(SwingConstants.BOTTOM);
 		lblCoverageCount.setHorizontalAlignment(SwingConstants.CENTER);
 		
-		
 		String[] columnNames2 = {"Initials", "This Week", "This Month", "Total/Term"};
-		dtm2 = new DefaultTableModel(columnNames2, 0);
-		tblCoverageStats = new JTable(dtm2);
+		talliesModel = new DefaultTableModel(columnNames2, 0);
+		tblCoverageStats = new JTable(talliesModel) {
+			@Override
+		    public boolean isCellEditable(int row, int column) {
+		        return false;
+		    }
+		};
+		tblCoverageStats.getTableHeader().setReorderingAllowed(false);
 		
 		JScrollPane scrCoverageStats = new JScrollPane(tblCoverageStats);
 		scrCoverageStats.setBounds(12, 316, 500, 232);
@@ -168,7 +157,7 @@ public class GUI extends JFrame implements ActionListener{
 				}
 	        }
 		} else if (e.getSource() == btnAssignCoverage) {
-			dtm.setRowCount(0);
+			coverageModel.setRowCount(0);
 			String currentDay;
 			int currentWeek;
 			currentDay = cmbDay.getSelectedItem().toString();
@@ -199,13 +188,13 @@ public class GUI extends JFrame implements ActionListener{
 		if(currentDay.equals("All")) {
 			ArrayList<Absence> covered = assigner.getRecord().getAbsencesByWeek(week);
 			for (Absence a : covered) {
-				newRow(dtm, a.convertForDisplay());
+				newRow(coverageModel, a.convertForDisplay());
 			}
 		}  else {
 			for(int i=0; i<5; i++) {
 				ArrayList<Absence> covered = assigner.getRecord().getCoveredAbsencesByDate(week, i, currentDay);
 				for (Absence a : covered) {
-					newRow(dtm, a.convertForDisplay());
+					newRow(coverageModel, a.convertForDisplay());
 				}
 			}
 		}
@@ -217,7 +206,7 @@ public class GUI extends JFrame implements ActionListener{
 					t.checkTalliesByWeek(assigner.getRecord(), week) + "",
 					t.checkTalliesByMonth(assigner.getRecord(), WorkbookUtils.convertWeekToMonth(week)) + "", 
 					t.checkTalliesByTerm(assigner.getRecord()) + ""};
-			newRow(dtm2, res);
+			newRow(talliesModel, res);
 		}
 	}
 	
