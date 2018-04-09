@@ -90,7 +90,6 @@ public class GUI extends JFrame implements ActionListener{
 		btnAssignCoverage.setBounds(524, 142, 152, 25);
 		contentPane.add(btnAssignCoverage);
 		
-		//TODO make this dynamic
 		String[] columnNames = {"Period", "Day", "Class", "Absentee", "Coverage"};
 		dtm = new DefaultTableModel(columnNames, 0);
 		tblAssignments = new JTable(dtm) {
@@ -151,11 +150,9 @@ public class GUI extends JFrame implements ActionListener{
 		JLabel lblDay = new JLabel("Day");
 		lblDay.setBounds(524, 214, 70, 15);
 		contentPane.add(lblDay);
-		//TODO finish table settings & columns
 	}
 	
 	public void actionPerformed(ActionEvent e) {
-		// bad practice to set to null TODO
 		if (e.getSource() == btnOpenFile) {
 			int returnVal = fc.showOpenDialog(GUI.this);
 

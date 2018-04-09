@@ -47,7 +47,6 @@ public class TeacherRoster {
 				return t;
 			}
 		}
-		// TODO what do we do here
 		return null;
 	}
 
@@ -57,7 +56,6 @@ public class TeacherRoster {
 				return t;
 			}
 		}
-		// TODO what do we do here
 		return null;
 	}
 	
