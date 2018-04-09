@@ -158,6 +158,8 @@ public class GUI extends JFrame implements ActionListener{
 	        }
 		} else if (e.getSource() == btnAssignCoverage) {
 			coverageModel.setRowCount(0);
+			talliesModel.setRowCount(0);
+			
 			String currentDay;
 			int currentWeek;
 			currentDay = cmbDay.getSelectedItem().toString();
@@ -191,8 +193,8 @@ public class GUI extends JFrame implements ActionListener{
 				newRow(coverageModel, a.convertForDisplay());
 			}
 		}  else {
-			for(int i=0; i<5; i++) {
-				ArrayList<Absence> covered = assigner.getRecord().getCoveredAbsencesByDate(week, i, currentDay);
+			for(int period = 0; period < 5; period++) {
+				ArrayList<Absence> covered = assigner.getRecord().getCoveredAbsencesByDate(week, period, currentDay);
 				for (Absence a : covered) {
 					newRow(coverageModel, a.convertForDisplay());
 				}

@@ -50,7 +50,6 @@ public class Driver {
 			String initials = WorkbookUtils.getStringValue(sheet, row, WorkbookUtils.TEACHER_INITIALS_COL);
 			
 			while (WorkbookUtils.isNotBlank(initials)) {
-				// TODO determine what to do when we can't find a teacher by ID - want to tell user I believe
 				Teacher teacher = roster.getFullTeacherById(id);
 				teacher.getTeacherAbsences(record, roster, sheet, row);
 				row++;

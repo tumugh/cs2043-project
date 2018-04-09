@@ -56,7 +56,6 @@ public class Teacher {
 				return i;
 			}
 		}
-		// TODO figure out what to do in this case
 		return -1;
 	}
 	
@@ -93,7 +92,6 @@ public class Teacher {
 	public int checkTalliesByWeek(AbsenceRecord record, int week) {
 		int count = 0;
 		for (Absence covered : record.getCoveredAbsencesByWeek(week)) {
-			// This is HORRIBLE TODO
 			if (covered.getCoverage().getSkills().size() != 0 && covered.getCoverage().getId() == getId()) {
 				count++;
 			}
@@ -113,6 +111,7 @@ public class Teacher {
 	}
 	
 	public int checkTalliesByTerm(AbsenceRecord record) {
+		// assumption that a term is 5 months
 		int count = 0;
 		for (int month = 1; month <= 5; month++) {
 			count = count + checkTalliesByMonth(record, month);
