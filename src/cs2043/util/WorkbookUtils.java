@@ -53,19 +53,10 @@ public class WorkbookUtils {
 			return true;
 		}
 		
-//		for (int i = row.getFirstCellNum(); i < row.getLastCellNum(); i++) {
-//			XSSFCell cell = row.getCell(i);
-//	        if (cell == null || cell.getStringCellValue() == " ") {
-//	        	return true;
-//	        }
-//		}
-		
 		return false;
 	}
 	
-	//TODO Throw Exception if col not valid day reference
 	public static String getDay(XSSFSheet sheet, int col) {
-		//TODO Extract to constants
 		if (col >= 4 && col <= 8) {
 			return "Monday";
 		} else if (col >= 9 && col <= 13) {
@@ -77,8 +68,7 @@ public class WorkbookUtils {
 		} else if (col >= 24 && col <= 28) {
 			return "Friday";
 		} else {
-			//throw here
-			return "Busted";
+			return null;
 		}
 	}
 	

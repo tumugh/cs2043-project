@@ -23,7 +23,6 @@ public class AbsenceRecord {
 			}
 		}
 		
-		//TODO what to do here
 		return null;
 	}
 

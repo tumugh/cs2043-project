@@ -1,4 +1,4 @@
-package spike;
+package cs2043.driver;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -24,8 +24,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 import cs2043.absence.Absence;
-import cs2043.driver.ImportAbsencesDriver;
-import cs2043.driver.School;
 import cs2043.teacher.Teacher;
 import cs2043.util.WorkbookUtils;
 
@@ -42,7 +40,7 @@ public class GUI extends JFrame implements ActionListener{
 	private JTable tblAssignments;
 	private JTable tblCoverageStats;
 	private JComboBox cmbDay, cmbWeek;
-	private School school = null;
+	private Assigner assigner = null;
 	private File file;
 	
 	/**
@@ -154,9 +152,6 @@ public class GUI extends JFrame implements ActionListener{
 		lblDay.setBounds(524, 214, 70, 15);
 		contentPane.add(lblDay);
 		//TODO finish table settings & columns
-		
-		
-		
 	}
 	
 	public void actionPerformed(ActionEvent e) {
@@ -168,13 +163,11 @@ public class GUI extends JFrame implements ActionListener{
 	            file = fc.getSelectedFile();
 	            lblCurrentFile.setText("Current File: " + file.getAbsolutePath());
 	            try {
-					school = ImportAbsencesDriver.importAbsences(file);
+					assigner = Driver.importAbsences(file);
 				} catch (FileNotFoundException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					//e1.printStackTrace();
+					e1.printStackTrace();
 				}
 	        }
 		} else if (e.getSource() == btnAssignCoverage) {
@@ -183,24 +176,23 @@ public class GUI extends JFrame implements ActionListener{
 			int currentWeek;
 			currentDay = cmbDay.getSelectedItem().toString();
 			currentWeek = Integer.parseInt((String)cmbWeek.getSelectedItem());
-			school.assignCoveragesForWeek(currentWeek);
+			assigner.assignCoveragesForWeek(currentWeek);
 
 			try {
 				// go back into spreadsheet and write coverage ID
-				ImportAbsencesDriver.writeAssignmentsToWorkbook(file, school, currentWeek-1);
+				assigner.writeAssignmentsToWorkbook(file, currentWeek - 1);
 			} catch (IOException e1) {			
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			} catch (NullPointerException e2) {
 				JOptionPane.showMessageDialog(null, "There are some absences we cannot cover with available teachers, please correct file", "UNCOVERED", JOptionPane.WARNING_MESSAGE);
 			}
+			
 			displayCoverages(currentDay, currentWeek);
 			displayTallies(currentWeek);
 		} else if (e.getSource() == btnPrint) {
 			try {
 				tblAssignments.print();
 			} catch (PrinterException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		}
@@ -208,34 +200,30 @@ public class GUI extends JFrame implements ActionListener{
 
 	private void displayCoverages(String currentDay, int week) {
 		if(currentDay.equals("All")) {
-			ArrayList<Absence> covered = school.getRecord().getAbsencesByWeek(week);
+			ArrayList<Absence> covered = assigner.getRecord().getAbsencesByWeek(week);
 			for (Absence a : covered) {
-				newRow(dtm, a.stringConvert());
+				newRow(dtm, a.convertForDisplay());
 			}
 		}  else {
 			for(int i=0; i<5; i++) {
-				ArrayList<Absence> covered = school.getRecord().getCoveredAbsencesByDate(week, i, currentDay);
+				ArrayList<Absence> covered = assigner.getRecord().getCoveredAbsencesByDate(week, i, currentDay);
 				for (Absence a : covered) {
-					newRow(dtm, a.stringConvert());
+					newRow(dtm, a.convertForDisplay());
 				}
 			}
 		}
 	}
 	
-	
 	public void displayTallies(int week) {
-		for (Teacher t : school.getRoster().getFullTeachers()) {
+		for (Teacher t : assigner.getRoster().getFullTeachers()) {
 			String[] res = {t.getInitials(),
-					t.checkTalliesByWeek(school.getRecord(), week) + "",
-					t.checkTalliesByMonth(school.getRecord(), WorkbookUtils.convertWeekToMonth(week)) + "", 
-					t.checkTalliesByTerm(school.getRecord()) + ""};
+					t.checkTalliesByWeek(assigner.getRecord(), week) + "",
+					t.checkTalliesByMonth(assigner.getRecord(), WorkbookUtils.convertWeekToMonth(week)) + "", 
+					t.checkTalliesByTerm(assigner.getRecord()) + ""};
 			newRow(dtm2, res);
 		}
 	}
 	
-	/**
-	 * These overloaded newRow methods rely on information being in the correct column format already.
-	 */
 	public static void newRow(DefaultTableModel model, String[] data) {
 		model.addRow(data);
 	}
@@ -245,12 +233,6 @@ public class GUI extends JFrame implements ActionListener{
 			model.addRow(list.get(i));
 		}
 	}
-	
-//	Requires a class to implement Stringable
-//	public static void newRow(DefaultTableModel model, Stringable list) {
-//		ArrayList<String[]> data = list.stringConvert();
-//		newRow(model, data);
-//	}
 	
 	public String getDate() {
 		return lblDate.getText();

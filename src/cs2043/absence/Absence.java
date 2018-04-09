@@ -1,9 +1,8 @@
 package cs2043.absence;
 
 import cs2043.teacher.Teacher;
-import spike.Stringable;
 
-public class Absence implements Stringable {
+public class Absence {
 	
 	private String period;
 	private String day;
@@ -53,7 +52,6 @@ public class Absence implements Stringable {
 		this.week = week;
 	}
 	
-	// should just change week to be an int field
 	public int getWeekNum() {
 		return Integer.parseInt(week.substring(5));
 	}
@@ -102,8 +100,7 @@ public class Absence implements Stringable {
 		return out;
 	}
 
-	@Override
-	public String[] stringConvert() {
+	public String[] convertForDisplay() {
 		String[] res = {getPeriod(), getDay(), getTeacher().getClassByPeriod(periodStrToInt()), getTeacher().getInitials(), getCoverage().getInitials()};
 		return res;
 	}

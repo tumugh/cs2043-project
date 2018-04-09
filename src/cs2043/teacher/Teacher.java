@@ -38,8 +38,12 @@ public class Teacher {
 		this.initials = initials;
 	}
 	
-	public void setSchedule(int period, String className) {
+	public void setSchedulePeriod(int period, String className) {
 		schedule[period] = className;
+	}
+	
+	public void setSchedule(String[] schedule) {
+		this.schedule = schedule;
 	}
 	
 	public String getClassByPeriod(int period) {
@@ -78,7 +82,7 @@ public class Teacher {
 		String skill;
 		for (int i = WorkbookUtils.SCHEDULE_PERIOD1_COL; i <= WorkbookUtils.SCHEDULE_PERIOD4_COL; i++) {
 			skill = WorkbookUtils.getCellValueAsString(sheet, row, i);
-			setSchedule(period, skill);
+			setSchedulePeriod(period, skill);
 			if (!skill.equals("LUNCH") && !skill.equals("FREE") && !containsSkill(skill)) {
 				addSkill(skill);
 			}
@@ -98,12 +102,7 @@ public class Teacher {
 	}
 	
 	public int checkTalliesByMonth(AbsenceRecord record, int month) {
-//		1 = 1-4
-//		2 = 5-8
-//		3 = 9-12
-//		4 = 13 - 16
-//		5 = 17 - 20
-//		assumption month is 4 weeks
+		// assumption that a month is 4 weeks
 		int endWeek = month * 4;
 		int startWeek = endWeek - 3;
 		int count = 0;
@@ -119,6 +118,26 @@ public class Teacher {
 			count = count + checkTalliesByMonth(record, month);
 		}
 		return count;
+	}
+	
+	public void getTeacherAbsences(AbsenceRecord record, TeacherRoster roster, XSSFSheet sheet, int row) {
+		for (int col = WorkbookUtils.START_COL; col <= WorkbookUtils.END_COL; col++) {
+			// If VP indicates teacher is absent on workbook
+			if (WorkbookUtils.getCellValueAsString(sheet, row, col).equalsIgnoreCase(WorkbookUtils.ABSENCE_INDICATOR)) {
+				Absence absence = new Absence(this, WorkbookUtils.getPeriod(sheet,col), WorkbookUtils.getDay(sheet, col), sheet.getSheetName());
+				record.addAbsence(absence);
+			} else if (WorkbookUtils.getCellValueAsString(sheet, row, col) != "" && WorkbookUtils.getCellValueAsString(sheet, row, col).substring(0, 1).equals("S")) {
+				int supplyId = Integer.parseInt(WorkbookUtils.getCellValueAsString(sheet, row, col).substring(1));
+				Teacher cover = roster.getSupplyTeacherById(supplyId);
+				Absence absence = new Absence(this, cover, WorkbookUtils.getPeriod(sheet,col), WorkbookUtils.getDay(sheet, col), sheet.getSheetName());
+				record.addAbsence(absence);
+			} else if (WorkbookUtils.getCellValueAsString(sheet, row, col) != "" && !WorkbookUtils.getCellValueAsString(sheet, row, col).substring(0, 1).equals("S")) {
+				int fullTimeId = Integer.parseInt(WorkbookUtils.getCellValueAsString(sheet, row, col));
+				Teacher cover = roster.getFullTeacherById(fullTimeId);
+				Absence absence = new Absence(this, cover, WorkbookUtils.getPeriod(sheet,col), WorkbookUtils.getDay(sheet, col), sheet.getSheetName());
+				record.addAbsence(absence);
+			}
+		}
 	}
 	
 	public String printSchedule() {

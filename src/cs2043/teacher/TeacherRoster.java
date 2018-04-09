@@ -2,6 +2,11 @@ package cs2043.teacher;
 
 import java.util.ArrayList;
 
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import cs2043.util.WorkbookUtils;
+
 public class TeacherRoster {
 
 	private ArrayList<Teacher> fullTeachers;
@@ -10,11 +15,6 @@ public class TeacherRoster {
 	public TeacherRoster() {
 		fullTeachers = new ArrayList<Teacher>();
 		supplyTeachers = new ArrayList<Teacher>();
-	}
-	
-	public TeacherRoster(ArrayList<Teacher> fullTeachers, ArrayList<Teacher> supplyTeachers) {
-		this.fullTeachers = fullTeachers;
-		this.supplyTeachers = supplyTeachers;
 	}
 	
 	public void addFullTeacher(Teacher t) {
@@ -69,5 +69,44 @@ public class TeacherRoster {
 			}
 		}
 		return teachers;
+	}
+	
+	public void retrieveFullTeachers(XSSFWorkbook wb) {
+	    XSSFSheet sheet = wb.getSheetAt(WorkbookUtils.FULL_TEACHER_SHEET);
+
+	    int row = 1;
+	    Integer id = Integer.parseInt(WorkbookUtils.getCellValueAsString(sheet, row, WorkbookUtils.TEACHER_ID_COL));
+	    String initials = WorkbookUtils.getCellValueAsString(sheet, row, WorkbookUtils.TEACHER_INITIALS_COL);
+		
+		while (id != null) {
+			Teacher teacher  = new Teacher(id, initials);
+			teacher.generateTeacherScheduleSkills(sheet, row);
+			getFullTeachers().add(teacher);
+			row++;
+			id = null;
+			if (!WorkbookUtils.isEmptyRow(sheet, row)) {
+				id = Integer.parseInt(WorkbookUtils.getCellValueAsString(sheet, row, WorkbookUtils.TEACHER_ID_COL));
+				initials = WorkbookUtils.getCellValueAsString(sheet, row, WorkbookUtils.TEACHER_INITIALS_COL);
+			}
+		}
+	}
+	
+	public void retrieveSupplyTeachers(XSSFWorkbook wb) {
+	    XSSFSheet sheet = wb.getSheetAt(WorkbookUtils.SUPPLY_TEACHER_SHEET);
+
+	    int row = 1;
+	    Integer id = Integer.parseInt(WorkbookUtils.getCellValueAsString(sheet, row, WorkbookUtils.TEACHER_ID_COL).substring(1));
+	    String initials = WorkbookUtils.getCellValueAsString(sheet, row, WorkbookUtils.TEACHER_INITIALS_COL);
+		
+		while (id != null) {
+			Teacher teacher  = new Teacher(id, initials);
+			getSupplyTeachers().add(teacher);
+			row++;
+			id = null;
+			if (!WorkbookUtils.isEmptyRow(sheet, row)) {
+				id = Integer.parseInt(WorkbookUtils.getCellValueAsString(sheet, row, WorkbookUtils.TEACHER_ID_COL).substring(1));
+				initials = WorkbookUtils.getCellValueAsString(sheet, row, WorkbookUtils.TEACHER_INITIALS_COL);
+			}
+		}
 	}
 }
